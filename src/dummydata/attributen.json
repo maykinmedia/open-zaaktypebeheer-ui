@@ -1,0 +1,56 @@
+{
+  "Pasfoto": {
+    "attribuut": "Pasfoto",
+    "label": "Pasfoto",
+    "type": "string",
+    "waarden": {
+      "ja": "Ja",
+      "nee": "Nee"
+    }
+  },
+  "IBAN": {
+    "attribuut": "IBAN",
+    "label": "IBAN",
+    "type": "string",
+    "waarden": {
+      "ja": "Ja",
+      "nee": "Nee"
+    }
+  },
+  "Adres": {
+    "attribuut": "Adres",
+    "label": "Adres",
+    "type": "string",
+    "waarden": {
+      "ja": "Ja",
+      "nee": "Nee"
+    }
+  },
+  "Beschrijving": {
+    "attribuut": "Beschrijving",
+    "label": "Beschrijving",
+    "type": "string",
+    "waarden": {
+      "ja": "Ja",
+      "nee": "Nee"
+    }
+  },
+  "overlast": {
+    "attribuut": "overlast",
+    "label": "Overlast",
+    "type": "string",
+    "waarden": {
+      "ja": "Ja",
+      "nee": "Nee"
+    }
+  },
+  "kvk": {
+    "attribuut": "KVK-registratie",
+    "label": "KVK-registratie",
+    "type": "string",
+    "waarden": {
+      "ja": "Ja",
+      "nee": "Nee"
+    }
+  }
+}
