@@ -39,9 +39,20 @@ export function useAuth() {
 export function RequireAuth() {
   let auth = useAuth();
   let location = useLocation();
+  console.log(location);
 
   if (!auth.user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return <Outlet />;
+}
+
+export function RequireNoAuth() {
+  let auth = useAuth();
+  let location = useLocation();
+
+  if (auth.user) {
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
   return <Outlet />;
 }
