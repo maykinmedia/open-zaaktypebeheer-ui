@@ -39,7 +39,6 @@ export function useAuth() {
 export function RequireAuth() {
   let auth = useAuth();
   let location = useLocation();
-  console.log(location);
 
   if (!auth.user) {
     return <Navigate to="/login" state={{ from: location }} replace />;

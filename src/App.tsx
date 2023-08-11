@@ -10,10 +10,6 @@ function App() {
         <Route element={<RequireAuth />}>
           <Route path="/" element={<BaseView />}>
             <Route path="/" element={<BaseView />} />
-            <Route path="/zaaktypen" element={<BaseView />} />
-            <Route path="/zaaktypen/:zaaktype" element={<BaseView />} />
-            <Route path="/attributen" element={<BaseView />} />
-            <Route path="/attributen/:attribuut" element={<BaseView />} />
           </Route>
         </Route>
         <Route element={<RequireNoAuth />}>
