@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import api from '../../api/api';
 
-const LOCALSTORAGE_USER_NAME = 'zaaktypenbeheer_user';
+const LOCALSTORAGE_USER_NAME = `${import.meta.env.VITE_PRODUCT_NAME}_user`;
 
 export interface AuthContextType {
   user: any;

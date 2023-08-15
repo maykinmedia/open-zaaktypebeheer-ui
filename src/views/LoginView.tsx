@@ -4,13 +4,11 @@ import { Box, Button, Paper, TextField, Typography } from '@mui/material';
 import { useAuth } from '../components/Auth/Auth';
 import { useNavigate } from 'react-router-dom';
 import logo from '/logo.svg';
-// Same as below, will return in next PR
-// import PasswordField from '../components/Fields/Password';
+import PasswordField from '../components/Fields/Password';
 
 export default function LoginView() {
   const [user, setUser] = useState('');
-  // Same as below and above, will return in next PR
-  // const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const auth = useAuth();
   const navigate = useNavigate();
@@ -68,11 +66,7 @@ export default function LoginView() {
           autoComplete="username"
           onChange={(e) => setUser(e.target.value)}
         />
-        {/* 
-        I commented these out for now, due to the discussed error
-        Next PR i will add this field again
-        <PasswordField password={password} setPassword={setPassword} /> 
-         */}
+        <PasswordField password={password} setPassword={setPassword} />
         <Button
           color={'primary'}
           startIcon={<LoginIcon />}

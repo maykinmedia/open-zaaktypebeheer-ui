@@ -6,7 +6,7 @@ import {
   PermissionDenied,
 } from '../errors/errors';
 
-const LOCALSTORAGE_TOKEN_NAME = 'zaaktypenbeheer_token';
+const LOCALSTORAGE_TOKEN_NAME = `${import.meta.env.VITE_PRODUCT_NAME}_token`;
 localStorage.setItem(LOCALSTORAGE_TOKEN_NAME, import.meta.env.VITE_API_LOGIN_TOKEN);
 
 interface APIResponse {
