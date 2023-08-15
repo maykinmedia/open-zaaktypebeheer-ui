@@ -30,7 +30,7 @@ jobs:
       - name: Store build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: sdk-build
+          name: open-zaaktypebeheer-ui-build
           path: dist/
           retention-days: 1
 
@@ -51,7 +51,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v3
         with:
-          name: sdk-build
+          name: open-zaaktypebeheer-ui-build
           path: dist/
 
   prettier:

@@ -23,7 +23,8 @@ export default function LoginView() {
         navigate('/', { replace: true });
       });
     } catch (err) {
-      setError(err as string);
+      let error = err as Error;
+      setError(error.message);
     }
   }
 
@@ -57,7 +58,6 @@ export default function LoginView() {
           Login
         </Typography>
         {error && <p>{error}</p>}
-
         <TextField
           variant="filled"
           label="Gebruikersnaam"
