@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import LoginIcon from '@mui/icons-material/Login';
 import { Box, Button, Paper, TextField, Typography } from '@mui/material';
-// Same as below, will return in next PR
-// import PasswordField from '../components/Fields/Password';
 import { useAuth } from '../components/Auth/Auth';
 import { useNavigate } from 'react-router-dom';
 import logo from '/logo.svg';
+// Same as below, will return in next PR
+// import PasswordField from '../components/Fields/Password';
 
 export default function LoginView() {
   const [user, setUser] = useState('');
