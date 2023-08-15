@@ -45,3 +45,13 @@ export function RequireAuth() {
   }
   return <Outlet />;
 }
+
+export function RequireNoAuth() {
+  let auth = useAuth();
+  let location = useLocation();
+
+  if (auth.user) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+  return <Outlet />;
+}
