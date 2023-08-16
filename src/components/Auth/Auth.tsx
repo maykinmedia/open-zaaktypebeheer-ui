@@ -4,7 +4,7 @@ import api from '../../api/api';
 
 const LOCALSTORAGE_USER_NAME = 'zaaktypenbeheer_user';
 
-interface AuthContextType {
+export interface AuthContextType {
   user: any;
   signIn: (formData: FormData, callback: VoidFunction) => void;
   signOut: (callback: VoidFunction) => void;
