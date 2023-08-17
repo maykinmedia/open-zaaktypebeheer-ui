@@ -5,11 +5,11 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import { SiteTreeT } from '../../types/types';
+import { DrawerListT } from '../../types/types';
 
-const List = ({ siteTreeOptions }: SiteTreeT) => (
+const List = ({ siteTreeOptions }: DrawerListT) => (
   <ListMaterial>
-    {siteTreeOptions?.map((option) => (
+    {siteTreeOptions.map((option) => (
       <ListItem key={option.label} onClick={option.onClick} disablePadding>
         <ListItemButton>
           {option.Icon && <ListItemIcon>{option.Icon}</ListItemIcon>}

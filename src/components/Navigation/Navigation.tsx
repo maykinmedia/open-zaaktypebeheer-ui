@@ -1,44 +1,50 @@
-import { toggleDrawer } from '../Drawer/utils';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IconButton, Stack, useMediaQuery, Button } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { useAuth } from '../Auth/Auth';
+import { getSiteTree } from '../../utils/siteTree';
 import Drawer from '../Drawer/Drawer';
-import { NavigationT } from '../../types/types';
+import MenuIcon from '@mui/icons-material/Menu';
+import { ToggleDrawerFunction } from '../../types/types';
 
-const Navigation = ({ navigate, siteTreeOptions }: NavigationT) => {
+const Navigation = () => {
   const [open, setOpen] = useState(false);
   const mobileDevice = useMediaQuery('(max-width:768px)');
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const siteTreeOptions = getSiteTree(navigate, auth);
+
+  const toggleDrawer: ToggleDrawerFunction = (newState) => (event) => {
+    if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    setOpen(newState);
+  };
 
   if (mobileDevice)
     return (
       <>
-        <IconButton onClick={toggleDrawer(true, setOpen)}>
+        <IconButton onClick={toggleDrawer(true)}>
           <MenuIcon />
         </IconButton>
-
-        <Drawer
-          open={open}
-          setOpen={setOpen}
-          navigate={navigate}
-          siteTreeOptions={siteTreeOptions}
-        />
+        <Drawer open={open} toggleDrawer={toggleDrawer} />
       </>
     );
 
   return (
-    <Stack direction="row" spacing={2}>
-      {siteTreeOptions.map((option, index, array) => {
-        return (
-          <Button
-            key={option.label}
-            startIcon={option.Icon}
-            variant={index + 1 === array.length ? 'contained' : 'text'}
-            onClick={option.onClick}
-          >
-            {option.label}
-          </Button>
-        );
-      })}
+    <Stack component={'nav'} direction="row" spacing={2}>
+      {siteTreeOptions.map((option, index, array) => (
+        <Button
+          key={option.label}
+          size="large"
+          sx={{ textTransform: 'none' }}
+          startIcon={option.Icon}
+          variant={index + 1 === array.length ? 'contained' : 'text'}
+          onClick={option.onClick}
+        >
+          {option.label}
+        </Button>
+      ))}
     </Stack>
   );
 };

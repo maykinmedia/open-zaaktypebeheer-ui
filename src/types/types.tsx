@@ -1,9 +1,10 @@
 import { NavigateFunction } from 'react-router-dom';
-import { Dispatch, SetStateAction } from 'react';
+import { AuthContextType } from '../components/Auth/Auth';
 
-export interface SiteTreeT {
-  siteTreeOptions: SiteTreeOptions;
-}
+export type GetSiteTreeFunction = (
+  navigate: NavigateFunction,
+  auth: AuthContextType
+) => SiteTreeOptions;
 
 export type SiteTreeOptions = SiteTreeOptionT[];
 
@@ -13,14 +14,16 @@ export interface SiteTreeOptionT {
   onClick?: () => void;
 }
 
-export interface NavigationT extends SiteTreeT {
-  navigate: NavigateFunction;
+export interface DrawerT {
+  open: boolean;
+  toggleDrawer: ToggleDrawerFunction;
 }
 
-export interface DrawerT extends NavigationT {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-}
+export type ToggleDrawerFunction = (newState: boolean) => (event: any) => void;
+
+export type DrawerListT = {
+  siteTreeOptions: SiteTreeOptions;
+};
 
 export interface LogoT
   extends Omit<
