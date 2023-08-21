@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import LoginIcon from '@mui/icons-material/Login';
+import { Login } from '@mui/icons-material/';
 import { Box, Button, Paper, TextField, Typography } from '@mui/material';
 import { useAuth } from '../components/Auth/Auth';
 import { useNavigate } from 'react-router-dom';
@@ -69,7 +69,7 @@ export default function LoginView() {
         <PasswordField password={password} setPassword={setPassword} />
         <Button
           color={'primary'}
-          startIcon={<LoginIcon />}
+          startIcon={<Login />}
           variant="contained"
           type="submit"
           aria-label="Login"

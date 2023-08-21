@@ -1,5 +1,5 @@
 import { FilledInput, FormControl, IconButton, InputAdornment, InputLabel } from '@mui/material';
-import { Visibility, VisibilityOff } from '@material-ui/icons/';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Dispatch, SetStateAction, useState } from 'react';
 
 // TODO: Add PasswordFieldT to types.tsx if file is created
