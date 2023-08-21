@@ -1,17 +1,20 @@
-import { Link } from 'react-router-dom';
-import logo from '/logo.svg';
+import { AppBar, Toolbar, Button, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import Logo from '../Logo/Logo';
+import Navigation from '../Navigation/Navigation';
 
 export default function Header() {
-  const start = (
-    <Link to="/">
-      <img alt="logo" src={logo} height="50" className="block mr-auto" />
-    </Link>
-  );
+  const navigate = useNavigate();
 
   return (
-    <header className="surface-card shadow-1">
-      {start}
-      <h1>Header</h1>
-    </header>
+    <AppBar component={'header'} position="sticky" color="transparent" elevation={0}>
+      <Toolbar component={'section'}>
+        <Button onClick={() => navigate('/')}>
+          <Logo height={40} />
+        </Button>
+        <Box flexGrow={1} />
+        <Navigation />
+      </Toolbar>
+    </AppBar>
   );
 }
