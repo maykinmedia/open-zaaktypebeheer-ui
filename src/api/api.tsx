@@ -5,164 +5,164 @@ import {
   NotFound,
   PermissionDenied,
 } from '../errors/errors';
+import { CSRFToken } from './headers';
 
-const LOCALSTORAGE_TOKEN_NAME = `${import.meta.env.VITE_PRODUCT_NAME}_token`;
-localStorage.setItem(LOCALSTORAGE_TOKEN_NAME, import.meta.env.VITE_API_LOGIN_TOKEN);
+const fetchDefaults = {
+  credentials: 'include', // required for Firefox 60, which is used in werkplekken
+};
 
-interface APIResponse {
-  detail: string;
-  [key: string]: any;
-}
+const throwForStatus = async (response: Response) => {
+  if (response.ok) return;
 
-class Api {
-  api_token: string | null;
-  api_url: string;
-
-  constructor() {
-    this.api_token = localStorage.getItem(LOCALSTORAGE_TOKEN_NAME);
-    this.api_url = import.meta.env.VITE_BASE_API_URL;
+  let responseData: any = null;
+  // Check if the response contains json data
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.indexOf('application/json') !== -1) {
+    responseData = await response.json();
   }
 
-  loggedIn = () => {
-    return Boolean(this.api_token);
-  };
-
-  signIn = async (formData: FormData) => {
-    const data = {
-      username: formData.get('username'),
-      password: formData.get('password'),
-    };
-
-    const response = await this.post('api-token-auth', data);
-
-    localStorage.setItem(LOCALSTORAGE_TOKEN_NAME, response.data.token);
-    this.api_token = response.data.token;
-  };
-
-  getAuthHeaders = () => {
-    return {
-      Authorization: `Token ${this.api_token}`,
-    };
-  };
-
-  throwForStatus = async (response: Response) => {
-    if (response.ok) return;
-
-    let responseData: APIResponse;
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.indexOf('application/json') !== -1) {
-      responseData = await response.json();
-    } else {
-      responseData = { detail: 'Unknown error.' };
+  let ErrorClass = APIError;
+  let errorMessage = 'An API error occurred.';
+  switch (response.status) {
+    case 400: {
+      ErrorClass = BadRequest;
+      errorMessage = Object.keys(responseData).map((key) => responseData[key])[0];
+      break;
     }
-
-    let ErrorClass = APIError;
-    let errorMessage = 'An API error occured.';
-    switch (response.status) {
-      case 400: {
-        ErrorClass = BadRequest;
-        errorMessage = 'Call did not validate on the server.';
-        break;
-      }
-      case 401: {
-        ErrorClass = NotAuthenticated;
-        errorMessage = 'User not or no longer authenticated.';
-        break;
-      }
-      case 403: {
-        ErrorClass = PermissionDenied;
-        errorMessage = 'User has insufficient permissions.';
-        break;
-      }
-      case 404: {
-        ErrorClass = NotFound;
-        errorMessage = 'Resource not found.';
-        break;
-      }
+    case 401: {
+      ErrorClass = NotAuthenticated;
+      errorMessage = 'User not or no longer authenticated';
+      break;
     }
-
-    throw new ErrorClass(errorMessage, response.status, responseData.detail);
-  };
-
-  _request = async (endpoint: string, opts: RequestInit = {}) => {
-    if (!opts.headers) {
-      opts.headers = this.api_token ? this.getAuthHeaders() : {};
-    } else if (!(opts.headers as Record<string, string>)['Authorization'] && this.api_token) {
-      (opts.headers as Record<string, string>)['Authorization'] = this.api_token;
+    case 403: {
+      ErrorClass = PermissionDenied;
+      errorMessage = 'User has insufficient permissions.';
+      break;
     }
-
-    if (!this.api_url.endsWith('/')) this.api_url += '/';
-    if (endpoint.startsWith('/')) endpoint = endpoint.slice(1);
-
-    const url = `${this.api_url}${endpoint}`;
-    const response = await fetch(url, opts);
-    await this.throwForStatus(response);
-
-    return response;
-  };
-
-  _unsafe = async (method = 'POST', endpoint: string, data = {}) => {
-    const opts: RequestInit = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Token ${this.api_token}`,
-      },
-    };
-
-    if (data) opts.body = JSON.stringify(data);
-
-    const response = await this._request(endpoint, opts);
-    const responseData = response.status === 204 ? null : await response.json();
-    return {
-      ok: response.ok,
-      status: response.status,
-      data: responseData,
-    };
-  };
-
-  get = async (
-    endpoint: string,
-    params: { [key: string]: string | number | undefined } = {},
-    multiParams: Array<{ [key: string]: string }> = []
-  ) => {
-    let searchParams = new URLSearchParams();
-    if (Object.keys(params).length) {
-      for (const [name, value] of Object.entries(params)) {
-        if (value) searchParams.append(name, value.toString());
-      }
+    case 404: {
+      ErrorClass = NotFound;
+      errorMessage = 'Resource not found.';
+      break;
     }
-
-    if (multiParams.length) {
-      for (const param of multiParams) {
-        const paramName = Object.keys(param)[0];
-        searchParams.append(paramName, param[paramName]);
-      }
+    default: {
+      break;
     }
+  }
 
-    if (searchParams.toString()) {
-      endpoint += `?${searchParams}`;
+  throw new ErrorClass(errorMessage, response.status, responseData.detail);
+};
+
+const addHeaders = (headers: any, method: string) => {
+  if (!headers) headers = {};
+
+  if (method !== 'GET') {
+    const csrfTokenValue = CSRFToken.getValue();
+    if (csrfTokenValue != null && csrfTokenValue) {
+      headers[CSRFToken.headerName] = csrfTokenValue;
     }
+  }
 
-    const response = await this._request(endpoint);
-    return response.status === 204 ? null : await response.json();
+  return headers;
+};
+
+const updateStoredHeadersValues = (headers: any) => {
+  const CSRFTokenValue = headers.get(CSRFToken.headerName);
+  if (CSRFTokenValue) {
+    CSRFToken.setValue(CSRFTokenValue);
+  }
+};
+
+const apiCall = async (url: string, opts: any = {}) => {
+  const method = opts.method || 'GET';
+  const options = { ...fetchDefaults, ...opts };
+  options.headers = addHeaders(options.headers, method);
+
+  const response = await window.fetch(url, options);
+
+  await throwForStatus(response);
+
+  updateStoredHeadersValues(response.headers);
+  return response;
+};
+
+const handleSignIn = async (data: any) => {
+  if (!CSRFToken.getValue()) {
+    await fetchCSRFToken();
+  }
+  await post('http://127.0.0.1:8000/api/v1/auth/login/', data);
+};
+
+const fetchCSRFToken = async () => {
+  let pathToTokenUrl = 'http://127.0.0.1:8000/api/docs/';
+  await apiCall(pathToTokenUrl);
+};
+
+const get = async (url: string, params = {}, multiParams = []) => {
+  let searchParams = new URLSearchParams();
+  if (Object.keys(params).length) {
+    searchParams = new URLSearchParams(params);
+  }
+  if (multiParams.length > 0) {
+    multiParams.forEach((param) => {
+      const paramName = Object.keys(param)[0]; // param={foo: bar}
+      searchParams.append(paramName, param[paramName]);
+    });
+  }
+  url += `?${searchParams}`;
+  const response = await apiCall(url);
+  const data = response.status === 204 ? null : await response.json();
+  return data;
+};
+
+const _unsafe = async (method: string = 'POST', url: string, data?: any, signal?: any) => {
+  const opts: any = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      [CSRFToken.headerName]: CSRFToken.getValue(),
+    },
   };
+  if (data) {
+    opts.body = JSON.stringify(data);
+  }
+  if (signal) {
+    opts.signal = signal;
+  }
+  const response = await apiCall(url, opts);
+  const responseData = response.status === 204 ? null : await response.json();
 
-  post = async (endpoint: string, data = {}) => {
-    if (!endpoint.endsWith('/')) endpoint += '/';
-    return await this._unsafe('POST', endpoint, data);
+  return {
+    ok: response.ok,
+    status: response.status,
+    data: responseData,
   };
+};
 
-  patch = async (endpoint: string, data = {}) => {
-    if (!endpoint.endsWith('/')) endpoint += '/';
-    return await this._unsafe('PATCH', endpoint, data);
+const post = async (url: string, data: any, signal?: any) => {
+  const resp = await _unsafe('POST', url, data, signal);
+  return resp;
+};
+
+const patch = async (url: string, data: any = {}) => {
+  const resp = await _unsafe('PATCH', url, data);
+  return resp;
+};
+
+const put = async (url: string, data: any = {}) => {
+  const resp = await _unsafe('PUT', url, data);
+  return resp;
+};
+
+const destroy = async (url: string) => {
+  const opts = {
+    method: 'DELETE',
   };
+  const response = await apiCall(url, opts);
+  if (!response.ok) {
+    const responseData = await response.json();
+    console.error('Delete failed', responseData);
+    throw new Error('Delete failed');
+  }
+};
 
-  put = async (endpoint: string, data = {}) => {
-    if (!endpoint.endsWith('/')) endpoint += '/';
-    return await this._unsafe('PUT', endpoint, data);
-  };
-}
-
-const api = new Api();
-export default api;
+export { handleSignIn, apiCall, get, post, put, patch, destroy };
