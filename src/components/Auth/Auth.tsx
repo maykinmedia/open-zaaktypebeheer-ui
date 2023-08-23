@@ -1,59 +1,59 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { apiCall, handleSignIn } from '../../api/api';
+import { api } from '../../api/api';
 
 export interface AuthContextType {
-  isSignedIn: any;
+  user: any;
   signIn: (formData: FormData, callback: VoidFunction) => void;
   signOut: (callback: VoidFunction) => void;
 }
 
-let AuthContext = React.createContext<AuthContextType>(null!);
+const AuthContext = React.createContext<AuthContextType>(null!);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  let [isSignedIn, setIsSignedIn] = React.useState<any>(false);
+  const [authState, setAuthState] = useState<any>({
+    user: null,
+    authChecked: false,
+  });
 
-  // Function works for now but feels like it could be improved
-  // There is an delay between the window loading completely and the
-  // login screen is shown. After a 100ms~ the login screen is replaced
-  // with the dashboard.
-  async function checkAuthentication() {
-    try {
-      if (isSignedIn) return true;
-      const response = await apiCall('http://127.0.0.1:8000/admin/');
-      if (response.redirected) setIsSignedIn(false);
-      else setIsSignedIn(true);
-    } catch (error) {
-      console.error('Error checking authentication:', error);
-    }
-  }
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await api.getUser();
+      setAuthState({
+        user,
+        authChecked: true,
+      });
+    };
+    if (!authState.authChecked) fetchUser();
+  }, []);
 
-  checkAuthentication();
-
-  let signIn = async (formData: FormData, callback: VoidFunction) => {
+  const signIn = useCallback(async (formData: FormData, callback: VoidFunction) => {
     const data = {
       username: formData.get('username'),
       password: formData.get('password'),
     };
-
-    try {
-      await handleSignIn(data);
-      setIsSignedIn(true);
-      callback();
-    } catch (err) {
-      let error = err as Error;
-      throw error;
-    }
-  };
-
-  let signOut = (callback: VoidFunction) => {
-    setIsSignedIn(false);
+    const user = await api.signIn(data);
+    setAuthState({
+      user,
+      authChecked: true,
+    });
     callback();
-  };
+  }, []);
 
-  let value = { isSignedIn, signIn, signOut };
+  const signOut = useCallback(async (callback: VoidFunction) => {
+    await api.signOut();
+    setAuthState({
+      user: null,
+      authChecked: true,
+    });
+    callback();
+  }, []);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const value = useMemo(() => ({ user: authState.user, signIn, signOut }), [authState.user]);
+
+  return (
+    <AuthContext.Provider value={value}>{authState.authChecked && children}</AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
@@ -61,21 +61,20 @@ export function useAuth() {
 }
 
 export function RequireAuth() {
-  let auth = useAuth();
-  let location = useLocation();
+  const auth = useAuth();
+  const location = useLocation();
 
-  if (!auth.isSignedIn) {
+  if (!auth.user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
   return <Outlet />;
 }
 
 export function RequireNoAuth() {
-  let auth = useAuth();
-  let location = useLocation();
+  const auth = useAuth();
+  const location = useLocation();
 
-  if (auth.isSignedIn) {
+  if (auth.user) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
   return <Outlet />;

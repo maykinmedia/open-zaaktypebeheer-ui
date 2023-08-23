@@ -1,4 +1,9 @@
 const CSRFTokenHeaderName = 'X-CSRFToken';
+
+/**
+ * Extract the CSRF Token from the `document.cookie` string.
+ * @todo Add to 'utils/extract.tsx' after merge
+ */
 let cookieToken = document.cookie.match(new RegExp('(^| )' + 'csrftoken' + '=([^;]+)'));
 
 const factoryHeader = (headerName: string, headerValue: any) => {
