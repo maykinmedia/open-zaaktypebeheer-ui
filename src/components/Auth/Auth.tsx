@@ -7,8 +7,8 @@ import { get, post } from '../../api/api';
 
 export interface AuthContextType {
   user: any;
-  onSignIn: (formData: FormData, callback: VoidFunction) => void;
-  onSignOut: (callback: VoidFunction) => void;
+  onSignIn: (formData: FormData) => void;
+  onSignOut: VoidFunction;
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!);
@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoggedIn(true);
   }, []);
 
-  const onSignIn = useCallback(async (formData: FormData, callback: VoidFunction) => {
+  const onSignIn = useCallback(async (formData: FormData) => {
     const data = {
       username: formData.get('username'),
       password: formData.get('password'),
@@ -44,15 +44,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setUser(userData);
     setIsLoggedIn(true);
-    callback();
   }, []);
 
-  const onSignOut = useCallback(async (callback: VoidFunction) => {
+  const onSignOut = useCallback(async () => {
     await post('auth/logout/', {});
 
     setUser(null!);
     setIsLoggedIn(false);
-    callback();
   }, []);
 
   return (

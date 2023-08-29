@@ -16,9 +16,8 @@ export default function LoginView() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     try {
-      await auth.onSignIn(data, () => {
-        navigate('/', { replace: true });
-      });
+      await auth.onSignIn(data);
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err as BadRequest);
     }
