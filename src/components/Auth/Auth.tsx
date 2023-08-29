@@ -1,58 +1,64 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { api } from '../../api/api';
+import { UserDataT } from '../../types/types';
+import { useAsync } from 'react-use';
+import { PermissionDenied } from '../../errors/errors';
+import { get, post } from '../../api/api';
 
 export interface AuthContextType {
   user: any;
-  signIn: (formData: FormData, callback: VoidFunction) => void;
-  signOut: (callback: VoidFunction) => void;
+  onSignIn: (formData: FormData, callback: VoidFunction) => void;
+  onSignOut: (callback: VoidFunction) => void;
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authState, setAuthState] = useState<any>({
-    user: null,
-    authChecked: false,
-  });
+  const [user, setUser] = useState<UserDataT>(null!);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const user = await api.getUser();
-      setAuthState({
-        user,
-        authChecked: true,
-      });
-    };
-    if (!authState.authChecked) fetchUser();
+  const { loading } = useAsync(async () => {
+    if (isLoggedIn) return;
+    let userData;
+
+    try {
+      userData = await get(`users/me/`);
+    } catch (e) {
+      // Catch only the expected error (403), throw any other unexpected case.
+      if (!(e instanceof PermissionDenied)) throw e;
+      return;
+    }
+    setUser(userData);
+    setIsLoggedIn(true);
   }, []);
 
-  const signIn = useCallback(async (formData: FormData, callback: VoidFunction) => {
+  const onSignIn = useCallback(async (formData: FormData, callback: VoidFunction) => {
     const data = {
       username: formData.get('username'),
       password: formData.get('password'),
     };
-    const user = await api.signIn(data);
-    setAuthState({
-      user,
-      authChecked: true,
-    });
+
+    await get(''); // get CSRF token
+    await post('auth/login/', data);
+    const userData = await get(`users/me/`);
+
+    setUser(userData);
+    setIsLoggedIn(true);
     callback();
   }, []);
 
-  const signOut = useCallback(async (callback: VoidFunction) => {
-    await api.signOut();
-    setAuthState({
-      user: null,
-      authChecked: true,
-    });
+  const onSignOut = useCallback(async (callback: VoidFunction) => {
+    await post('auth/logout/', {});
+
+    setUser(null!);
+    setIsLoggedIn(false);
     callback();
   }, []);
-
-  const value = useMemo(() => ({ user: authState.user, signIn, signOut }), [authState.user]);
 
   return (
-    <AuthContext.Provider value={value}>{authState.authChecked && children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, onSignIn, onSignOut }}>
+      {!loading && children}
+    </AuthContext.Provider>
   );
 }
 

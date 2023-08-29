@@ -5,11 +5,10 @@ import { useAuth } from '../components/Auth/Auth';
 import { useNavigate } from 'react-router-dom';
 import logo from '/logo.svg';
 import PasswordField from '../components/Fields/Password';
+import { APIError, BadRequest } from '../errors/errors';
 
 export default function LoginView() {
-  const [user, setUser] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<APIError>(undefined!);
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -17,12 +16,11 @@ export default function LoginView() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     try {
-      await auth.signIn(data, () => {
+      await auth.onSignIn(data, () => {
         navigate('/', { replace: true });
       });
     } catch (err) {
-      let error = err as Error;
-      setError(error.message);
+      setError(err as BadRequest);
     }
   }
 
@@ -55,19 +53,19 @@ export default function LoginView() {
         <Typography variant="h4" component={'h1'}>
           Login
         </Typography>
-        {error && <p>{error}</p>}
+        {error && <p>{error.message}</p>}
         <TextField
           variant="filled"
           label="Gebruikersnaam"
           name="username"
           id="username"
-          value={user}
           type={'text'}
           autoComplete="username"
-          onChange={(e) => setUser(e.target.value)}
+          required
         />
-        <PasswordField password={password} setPassword={setPassword} />
+        <PasswordField />
         <Button
+          size="large"
           color={'primary'}
           startIcon={<Login />}
           variant="contained"
