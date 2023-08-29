@@ -24,8 +24,7 @@ export const getSiteTree: GetSiteTreeFunction = (navigate, auth) => [
     label: 'Log uit',
     Icon: <LogoutIcon />,
     onClick: () => {
-      localStorage.removeItem(`${import.meta.env.VITE_PRODUCT_NAME}_user`);
-      auth.signOut(() => navigate('/login'));
+      auth.onSignOut();
     },
   },
 ];

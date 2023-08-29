@@ -30,3 +30,11 @@ export interface LogoT
     React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>,
     'src'
   > {}
+
+// Login/Logout types and interfaces
+export interface UserDataT {
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}

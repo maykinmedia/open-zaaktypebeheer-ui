@@ -5,164 +5,145 @@ import {
   NotFound,
   PermissionDenied,
 } from '../errors/errors';
+import { CSRFToken } from './headers';
 
-const LOCALSTORAGE_TOKEN_NAME = 'zaaktypenbeheer_token';
-localStorage.setItem(LOCALSTORAGE_TOKEN_NAME, import.meta.env.VITE_API_LOGIN_TOKEN);
+const fetchDefaults = {
+  credentials: 'include', // required for Firefox 60, which is used in werkplekken
+};
 
-interface APIResponse {
-  detail: string;
-  [key: string]: any;
+function getUrl(endpoint: string) {
+  let apiUrl: string = import.meta.env.VITE_BASE_API_URL;
+  if (!apiUrl.endsWith('/')) apiUrl = apiUrl + '/';
+  if (endpoint.startsWith('/')) endpoint = endpoint.substring(1);
+  return apiUrl + endpoint;
 }
 
-class Api {
-  api_token: string | null;
-  api_url: string;
+export function updateStoredHeadersValues(headers: Headers) {
+  const CSRFTokenValue = headers.get(CSRFToken.headerName);
+  if (CSRFTokenValue) {
+    CSRFToken.setValue(CSRFTokenValue);
+  }
+}
 
-  constructor() {
-    this.api_token = localStorage.getItem(LOCALSTORAGE_TOKEN_NAME);
-    this.api_url = import.meta.env.VITE_BASE_API_URL;
+export async function _request(endpoint: string, opts: any = {}) {
+  const options = { ...fetchDefaults, ...opts };
+  const url = getUrl(endpoint);
+  const response = await fetch(url, options);
+
+  await throwForStatus(response);
+  updateStoredHeadersValues(response.headers);
+  return response;
+}
+
+export async function _unsafe(method: string = 'POST', endpoint: string, data?: any, signal?: any) {
+  const opts: any = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      [CSRFToken.headerName]: CSRFToken.getValue(),
+    },
+  };
+  if (data) {
+    opts.body = JSON.stringify(data);
+  }
+  if (signal) {
+    opts.signal = signal;
+  }
+  const response = await _request(endpoint, opts);
+  const responseData = response.status === 204 ? null : await response.json();
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    data: responseData,
+  };
+}
+
+export async function get(endpoint: string, params = {}, multiParams = []) {
+  let searchParams = new URLSearchParams();
+  if (Object.keys(params).length) {
+    searchParams = new URLSearchParams(params);
+  }
+  if (multiParams.length > 0) {
+    multiParams.forEach((param) => {
+      const paramName = Object.keys(param)[0]; // param={foo: bar}
+      searchParams.append(paramName, param[paramName]);
+    });
   }
 
-  loggedIn = () => {
-    return Boolean(this.api_token);
-  };
+  if (searchParams.toString()) {
+    endpoint += `?${searchParams}`;
+  }
 
-  signIn = async (formData: FormData) => {
-    const data = {
-      username: formData.get('username'),
-      password: formData.get('password'),
-    };
-
-    const response = await this.post('api-token-auth', data);
-
-    localStorage.setItem(LOCALSTORAGE_TOKEN_NAME, response.data.token);
-    this.api_token = response.data.token;
-  };
-
-  getAuthHeaders = () => {
-    return {
-      Authorization: `Token ${this.api_token}`,
-    };
-  };
-
-  throwForStatus = async (response: Response) => {
-    if (response.ok) return;
-
-    let responseData: APIResponse;
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.indexOf('application/json') !== -1) {
-      responseData = await response.json();
-    } else {
-      responseData = { detail: 'Unknown error.' };
-    }
-
-    let ErrorClass = APIError;
-    let errorMessage = 'An API error occured.';
-    switch (response.status) {
-      case 400: {
-        ErrorClass = BadRequest;
-        errorMessage = 'Call did not validate on the server.';
-        break;
-      }
-      case 401: {
-        ErrorClass = NotAuthenticated;
-        errorMessage = 'User not or no longer authenticated.';
-        break;
-      }
-      case 403: {
-        ErrorClass = PermissionDenied;
-        errorMessage = 'User has insufficient permissions.';
-        break;
-      }
-      case 404: {
-        ErrorClass = NotFound;
-        errorMessage = 'Resource not found.';
-        break;
-      }
-    }
-
-    throw new ErrorClass(errorMessage, response.status, responseData.detail);
-  };
-
-  _request = async (endpoint: string, opts: RequestInit = {}) => {
-    if (!opts.headers) {
-      opts.headers = this.api_token ? this.getAuthHeaders() : {};
-    } else if (!(opts.headers as Record<string, string>)['Authorization'] && this.api_token) {
-      (opts.headers as Record<string, string>)['Authorization'] = this.api_token;
-    }
-
-    if (!this.api_url.endsWith('/')) this.api_url += '/';
-    if (endpoint.startsWith('/')) endpoint = endpoint.slice(1);
-
-    const url = `${this.api_url}${endpoint}`;
-    const response = await fetch(url, opts);
-    await this.throwForStatus(response);
-
-    return response;
-  };
-
-  _unsafe = async (method = 'POST', endpoint: string, data = {}) => {
-    const opts: RequestInit = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Token ${this.api_token}`,
-      },
-    };
-
-    if (data) opts.body = JSON.stringify(data);
-
-    const response = await this._request(endpoint, opts);
-    const responseData = response.status === 204 ? null : await response.json();
-    return {
-      ok: response.ok,
-      status: response.status,
-      data: responseData,
-    };
-  };
-
-  get = async (
-    endpoint: string,
-    params: { [key: string]: string | number | undefined } = {},
-    multiParams: Array<{ [key: string]: string }> = []
-  ) => {
-    let searchParams = new URLSearchParams();
-    if (Object.keys(params).length) {
-      for (const [name, value] of Object.entries(params)) {
-        if (value) searchParams.append(name, value.toString());
-      }
-    }
-
-    if (multiParams.length) {
-      for (const param of multiParams) {
-        const paramName = Object.keys(param)[0];
-        searchParams.append(paramName, param[paramName]);
-      }
-    }
-
-    if (searchParams.toString()) {
-      endpoint += `?${searchParams}`;
-    }
-
-    const response = await this._request(endpoint);
-    return response.status === 204 ? null : await response.json();
-  };
-
-  post = async (endpoint: string, data = {}) => {
-    if (!endpoint.endsWith('/')) endpoint += '/';
-    return await this._unsafe('POST', endpoint, data);
-  };
-
-  patch = async (endpoint: string, data = {}) => {
-    if (!endpoint.endsWith('/')) endpoint += '/';
-    return await this._unsafe('PATCH', endpoint, data);
-  };
-
-  put = async (endpoint: string, data = {}) => {
-    if (!endpoint.endsWith('/')) endpoint += '/';
-    return await this._unsafe('PUT', endpoint, data);
-  };
+  const response = await _request(endpoint);
+  const data = response.status === 204 ? null : await response.json();
+  return data;
 }
 
-const api = new Api();
-export default api;
+export async function post(endpoint: string, data: any, signal?: any) {
+  const resp = await _unsafe('POST', endpoint, data, signal);
+  return resp;
+}
+
+export async function patch(endpoint: string, data: any = {}) {
+  const resp = await _unsafe('PATCH', endpoint, data);
+  return resp;
+}
+
+export async function put(endpoint: string, data: any = {}) {
+  const resp = await _unsafe('PUT', endpoint, data);
+  return resp;
+}
+
+export async function destroy(endpoint: string) {
+  const opts = {
+    method: 'DELETE',
+  };
+  const response = await _request(endpoint, opts);
+  if (!response.ok) {
+    const responseData = await response.json();
+    console.error('Delete failed', responseData);
+    throw new Error('Delete failed');
+  }
+}
+
+export async function throwForStatus(response: Response) {
+  if (response.ok) return;
+
+  let responseData: any = null;
+  // Check if the response contains json data
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.indexOf('application/json') !== -1) {
+    responseData = await response.json();
+  }
+
+  let ErrorClass = APIError;
+  let errorMessage = 'An API error occurred.';
+  switch (response.status) {
+    case 400: {
+      ErrorClass = BadRequest;
+      errorMessage = Object.keys(responseData).map((key) => responseData[key])[0];
+      break;
+    }
+    case 401: {
+      ErrorClass = NotAuthenticated;
+      errorMessage = 'User not or no longer authenticated';
+      break;
+    }
+    case 403: {
+      ErrorClass = PermissionDenied;
+      errorMessage = 'User has insufficient permissions.';
+      break;
+    }
+    case 404: {
+      ErrorClass = NotFound;
+      errorMessage = 'Resource not found.';
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+
+  throw new ErrorClass(errorMessage, response.status, responseData.detail);
+}

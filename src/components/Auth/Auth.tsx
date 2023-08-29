@@ -1,35 +1,63 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import api from '../../api/api';
-
-const LOCALSTORAGE_USER_NAME = 'zaaktypenbeheer_user';
+import { UserDataT } from '../../types/types';
+import { useAsync } from 'react-use';
+import { PermissionDenied } from '../../errors/errors';
+import { get, post } from '../../api/api';
 
 export interface AuthContextType {
   user: any;
-  signIn: (formData: FormData, callback: VoidFunction) => void;
-  signOut: (callback: VoidFunction) => void;
+  onSignIn: (formData: FormData) => void;
+  onSignOut: VoidFunction;
 }
 
-let AuthContext = React.createContext<AuthContextType>(null!);
+const AuthContext = React.createContext<AuthContextType>(null!);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  let [user, setUser] = React.useState<any>(localStorage.getItem(LOCALSTORAGE_USER_NAME));
+  const [user, setUser] = useState<UserDataT>(null!);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  let signIn = async (formData: FormData, callback: VoidFunction) => {
-    await api.signIn(formData);
-    localStorage.setItem(LOCALSTORAGE_USER_NAME, formData.get('username') as string);
-    setUser(formData.get('username'));
-    callback();
-  };
+  const { loading } = useAsync(async () => {
+    if (isLoggedIn) return;
+    let userData;
 
-  let signOut = (callback: VoidFunction) => {
-    setUser(null);
-    callback();
-  };
+    try {
+      userData = await get(`users/me/`);
+    } catch (e) {
+      // Catch only the expected error (403), throw any other unexpected case.
+      if (!(e instanceof PermissionDenied)) throw e;
+      return;
+    }
+    setUser(userData);
+    setIsLoggedIn(true);
+  }, []);
 
-  let value = { user, signIn, signOut };
+  const onSignIn = useCallback(async (formData: FormData) => {
+    const data = {
+      username: formData.get('username'),
+      password: formData.get('password'),
+    };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    await get(''); // get CSRF token
+    await post('auth/login/', data);
+    const userData = await get(`users/me/`);
+
+    setUser(userData);
+    setIsLoggedIn(true);
+  }, []);
+
+  const onSignOut = useCallback(async () => {
+    await post('auth/logout/', {});
+
+    setUser(null!);
+    setIsLoggedIn(false);
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, onSignIn, onSignOut }}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
@@ -37,8 +65,8 @@ export function useAuth() {
 }
 
 export function RequireAuth() {
-  let auth = useAuth();
-  let location = useLocation();
+  const auth = useAuth();
+  const location = useLocation();
 
   if (!auth.user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -47,8 +75,8 @@ export function RequireAuth() {
 }
 
 export function RequireNoAuth() {
-  let auth = useAuth();
-  let location = useLocation();
+  const auth = useAuth();
+  const location = useLocation();
 
   if (auth.user) {
     return <Navigate to="/" state={{ from: location }} replace />;
