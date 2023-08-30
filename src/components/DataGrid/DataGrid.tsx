@@ -1,23 +1,25 @@
-import { DataGrid as DataGridComponent, GridRowParams } from '@mui/x-data-grid';
-import { Box } from '@mui/material';
 import {
-  createGridColDef,
-  dataGridLocaleText,
-  inititialColumnVisibilityModel,
-  rowsWithId,
-} from './utils';
+  DataGrid as DataGridComponent,
+  GridColumnVisibilityModel,
+  GridRowParams,
+} from '@mui/x-data-grid';
+import { Box } from '@mui/material';
+import { columnVisibilityModel, createGridColDef, dataGridLocaleText, rowsWithId } from './utils';
 import { useNavigate } from 'react-router-dom';
 import { DataGridProps } from '../../types/types';
 import DataGridToolbar from './Toolbar';
+import DataGridLoadingOverlay from './LoadingOverlay';
+import { useState } from 'react';
 
-export default function DataGrid({ data }: DataGridProps) {
+export default function DataGrid({ data, loading }: DataGridProps) {
+  const [model, setModel] = useState<GridColumnVisibilityModel>(undefined!);
   const navigate = useNavigate();
-  const handleNavigate = (params: GridRowParams<any>) => () => {
-    navigate('/' + params.row.id);
-  };
+  const handleClick = (params: GridRowParams<any>) => () => navigate('/zaaktypen/' + params.row.id);
   const rows = rowsWithId(data);
-  const columnVisibilityModel = inititialColumnVisibilityModel(data);
-  const gridColDef = createGridColDef(data, handleNavigate);
+  const gridColDef = createGridColDef(data, handleClick, loading);
+  const visibilityModel = columnVisibilityModel(data);
+
+  if (!model && !loading) setModel(visibilityModel);
 
   return (
     <Box
@@ -28,15 +30,16 @@ export default function DataGrid({ data }: DataGridProps) {
       }}
     >
       <DataGridComponent
+        columns={gridColDef}
         slots={{
+          loadingOverlay: DataGridLoadingOverlay,
           toolbar: DataGridToolbar,
         }}
-        initialState={{
-          columns: {
-            columnVisibilityModel,
-          },
+        onColumnVisibilityModelChange={(newModel) => {
+          setModel(newModel);
         }}
-        columns={gridColDef}
+        columnVisibilityModel={model}
+        loading={loading}
         rows={rows}
         localeText={dataGridLocaleText}
         disableColumnMenu

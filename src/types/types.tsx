@@ -88,17 +88,6 @@ export type ZaaktypeInformatieRelatieT = {
   richting: 'inkomend' | 'uitgaand' | 'definitief';
   statustype?: string | null;
 };
-2;
-/**
- * @deprecated must be replaced
- * @use InformatieObjectenResposonse
- */
-export type InformatieObjectenT = InformatieObjectenResposonse;
-/**
- * @deprecated must be replaced
- * @use ZaaktypenResponse
- */
-export type ZaaktypenT = ZaaktypenResponse;
 
 //-----------------------//
 //    Use-state Types    //
@@ -136,6 +125,7 @@ export type CardProps = {
 /** Props for DataGrid component  */
 export type DataGridProps = {
   data: ZaaktypeT[] | InformatieObjectT[];
+  loading?: boolean;
 };
 
 //-----------------//
@@ -144,14 +134,15 @@ export type DataGridProps = {
 
 /**  Create single column definition function  */
 export type CreateSingleGridColDefFunction = (
-  key: keyof ZaaktypeT | keyof InformatieObjectT,
-  value: any
+  columnLabel: keyof ZaaktypeT | keyof InformatieObjectT,
+  columnType: any
 ) => GridColDef | undefined;
 
 /**  Create multiple column definitions function  */
 export type CreateGridColDefFunction = (
   data: ZaaktypeT[] | InformatieObjectT[],
-  handleNavigate: (params: any) => VoidFunction
+  handleClick: (params: any) => VoidFunction,
+  loading?: boolean
 ) => GridColDef[];
 
 //----------------//

@@ -4,14 +4,14 @@ import { CardActionArea, useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { mediaQueries } from '../DesignSystem/DesignSystem';
 import { CardProps } from '../../types/types';
-import extract from '../../utils/extract';
+import { uuidExtract } from '../../utils/extract';
 
 export default function Card({ zaaktype, loading }: CardProps) {
   const mobileScreen = useMediaQuery(mediaQueries.mobile);
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/' + extract.uuid(zaaktype.url));
+    navigate('/zaaktypen/' + uuidExtract(zaaktype.url));
   };
 
   const count = zaaktype.informatieobjecttypen ? zaaktype.informatieobjecttypen?.length : 0;

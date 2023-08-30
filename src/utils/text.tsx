@@ -1,17 +1,21 @@
 import decamelize from 'decamelize';
 
-class Text {
-  ucFirst(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
+/**
+ * Uppercase the first letter of a string.
+ * @param string the string of which the first letter should be capitalized
+ * @returns the string with the first letter capitalized
+ */
+export const ucFirstText = (string: string) => string.charAt(0).toUpperCase() + string.slice(1);
 
-  decamelize(str: string, noUcFirst?: true, separator?: string) {
-    if (!noUcFirst)
-      return this.ucFirst(decamelize(str, { separator: separator ? separator : ' ' }));
-    return decamelize(str, { separator: separator });
-  }
-}
-
-const text = new Text();
-
-export default text;
+/**
+ * Decamelize a string.
+ * @param string the string to decamelize
+ * @param noUcFirst if true, the first letter will not be capitalized
+ * @param separator the separator to use, defaults to a space
+ * @returns the decamelized string
+ */
+export const decamelizeText = (string: string, noUcFirst?: true, separator?: string) => {
+  if (!noUcFirst)
+    return ucFirstText(decamelize(string, { separator: separator ? separator : ' ' }));
+  return decamelize(string, { separator: separator });
+};
