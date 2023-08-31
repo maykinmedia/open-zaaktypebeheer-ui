@@ -4,7 +4,7 @@
  * @returns array of attributes
  */
 export const attributesFromDataArray = (data: any[]) => {
-  const propertiesArray = new Set();
+  const propertiesArray = new Set<string>();
 
   // Iterate through each object
   for (const obj of data) {
