@@ -1,15 +1,11 @@
-import { Outlet, useParams } from 'react-router-dom';
+import { Container } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import { spacing } from '../DesignSystem/DesignSystem';
 
-const Page = () => {
-  const { zaaktype, attribuut } = useParams();
-  const title = attribuut || zaaktype;
-
-  return (
-    <main>
-      {!title ? <h1>Dashboard</h1> : <h2>{title}</h2>}
-      <Outlet />
-    </main>
-  );
-};
+const Page = () => (
+  <Container component={'main'} maxWidth={'lg'} sx={{ my: spacing }}>
+    <Outlet />
+  </Container>
+);
 
 export default Page;
