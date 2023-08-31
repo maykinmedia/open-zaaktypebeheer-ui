@@ -4,15 +4,14 @@
  * @returns array of attributes
  */
 export const attributesFromDataArray = (data: any[]) => {
-  const propertiesArray: string[] = [];
+  const propertiesArray = new Set();
 
   // Iterate through each object
   for (const obj of data) {
-    const keys = Object.keys(obj);
-    // Get the keys (property names) of the object and add them to propertiesArray
-    propertiesArray.push(...keys);
+    // Iterate through each key of the object and add it to the set
+    Object.keys(obj).forEach((key) => propertiesArray.add(key));
   }
-  return uniqueArray(propertiesArray);
+  return Array.from(propertiesArray);
 };
 
 /**
