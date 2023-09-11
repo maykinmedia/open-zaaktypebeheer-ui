@@ -2,21 +2,10 @@
 @import './variables.css';
 @import './reset.css';
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
-  font-family: var(--font-family) !important;
-}
-
-.pi,
-.pi:before,
-.pi:after {
-  font-family: 'primeicons' !important;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-family-h) !important;
+  padding-right: 0 !important ;
 }

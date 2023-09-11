@@ -1,51 +1,52 @@
-import {
-  DataGrid as DataGridComponent,
-  GridColumnVisibilityModel,
-  GridRowParams,
-} from '@mui/x-data-grid';
+import { DataGrid as MuiDataGrid, nlNL } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
-import { columnVisibilityModel, createGridColDef, dataGridLocaleText, rowsWithId } from './utils';
-import { useNavigate } from 'react-router-dom';
 import { DataGridProps } from '../../types/types';
 import DataGridToolbar from './Toolbar';
 import DataGridLoadingOverlay from './LoadingOverlay';
 import { useState } from 'react';
 
-export default function DataGrid({ data, loading }: DataGridProps) {
-  const [model, setModel] = useState<GridColumnVisibilityModel>(undefined!);
-  const navigate = useNavigate();
-  const handleClick = (params: GridRowParams<any>) => () => navigate('/zaaktypen/' + params.row.id);
-  const rows = rowsWithId(data);
-  const gridColDef = createGridColDef(data, handleClick, loading);
-  const visibilityModel = columnVisibilityModel(data);
-
-  if (!model && !loading) setModel(visibilityModel);
-
+function DataGrid({
+  loading,
+  height,
+  showQuickFilter,
+  columnVisibilityModel,
+  ...rest
+}: DataGridProps) {
+  const [visibilityModel, setVisibilityModel] = useState(columnVisibilityModel);
   return (
     <Box
       component={'section'}
       sx={{
-        height: 600,
+        height: height ? height : 1000,
         width: '100%',
       }}
     >
-      <DataGridComponent
-        columns={gridColDef}
+      <MuiDataGrid
+        {...rest}
+        rowModesModel={rest.rowModesModel}
         slots={{
           loadingOverlay: DataGridLoadingOverlay,
           toolbar: DataGridToolbar,
         }}
-        onColumnVisibilityModelChange={(newModel) => {
-          setModel(newModel);
+        slotProps={{
+          toolbar: {
+            showQuickFilter: showQuickFilter,
+          },
         }}
-        columnVisibilityModel={model}
+        columnBuffer={2}
+        columnThreshold={2}
         loading={loading}
-        rows={rows}
-        localeText={dataGridLocaleText}
+        localeText={nlNL.components.MuiDataGrid.defaultProps.localeText}
         disableColumnMenu
         disableRowSelectionOnClick
-        hideFooter
+        // local handling of column visibility
+        onColumnVisibilityModelChange={(model) => {
+          setVisibilityModel(model);
+        }}
+        columnVisibilityModel={visibilityModel}
       />
     </Box>
   );
 }
+
+export default DataGrid;
