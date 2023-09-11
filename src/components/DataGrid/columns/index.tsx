@@ -2,7 +2,7 @@ import { titleColumn } from './title';
 import { checkBoxColumn } from './checkbox';
 import { editColumn } from './edit';
 import { defaultColumns } from './default';
-import { bulkEditorColumns } from './bulkeditor';
+import { bulkEditorColumns } from './bulkEditor';
 import { linkColumn } from './link';
 import { GetGridColIndex } from '../../../types/types';
 
