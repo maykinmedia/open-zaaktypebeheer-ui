@@ -4,7 +4,7 @@
  */
 import { GridColDef } from '@mui/x-data-grid';
 import { Dispatch, SetStateAction } from 'react';
-import { NavigateFunction } from 'react-router-dom';
+import { LinkProps, NavigateFunction } from 'react-router-dom';
 import { AuthContextType } from '../components/Auth/Auth';
 
 //-----------------------//
@@ -109,6 +109,12 @@ export type SearchProps = {
   label: string;
   fullWidth?: boolean;
 };
+
+/** Props for Breadcrumbs component */
+export interface StyledRoutedLinkProps extends LinkProps {
+  to: string;
+  replace?: boolean;
+}
 
 /** Props for ToggleButton component  */
 export type ToggleButtonProps = {
