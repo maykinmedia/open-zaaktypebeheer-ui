@@ -318,9 +318,3 @@ export type RendererT = {
 export type RendererFunctionT = RendererT & {
   type: 'url' | 'boolean' | 'string' | 'array';
 };
-
-declare module 'notistack' {
-  interface VariantOverrides {
-    unsavedChanges: true;
-  }
-}
