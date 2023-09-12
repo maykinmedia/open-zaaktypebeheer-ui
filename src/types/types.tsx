@@ -2,15 +2,30 @@
  * Custom types are defined here.
  * They might need to be updated following the zaaktypebeheer-api.
  */
-import { GridColDef } from '@mui/x-data-grid';
-import { Dispatch, SetStateAction } from 'react';
+import {
+  DataGridProps as MuiDataGridProps,
+  GridColDef,
+  GridRowId,
+  GridColumnVisibilityModel,
+  GridRowModesModel,
+  GridEventListener,
+  GridRowModel,
+  GridRowSelectionModel,
+  GridCallbackDetails,
+} from '@mui/x-data-grid';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { AuthContextType } from '../components/Auth/Auth';
-import { LinkProps } from '@mui/material';
+import { MenuItemProps, LinkProps } from '@mui/material';
 
 //-----------------------//
 //    Data Structures    //
 //-----------------------//
+
+export type ZaaktypeResolvedT = Omit<ZaaktypeT, 'informatieobjecttypen' | 'statustypen'> & {
+  informatieobjecttypen: ZaaktypeInformatieRelatieT[];
+  statustypen: StatusTypeT[];
+};
 
 export type ZaaktypeT = {
   url: string;
@@ -53,7 +68,7 @@ export type ZaaktypeT = {
   resultaattypen?: string[];
 
   eigenschappen?: string[];
-  informatieobjecttypen?: string[];
+  informatieobjecttypen?: InformatieObjectT[] | string[];
 
   roltypen?: string[];
   besluittypen: string[];
@@ -71,7 +86,7 @@ export type ZaaktypeT = {
 };
 
 export type InformatieObjectT = {
-  url?: string;
+  url: string;
   catalogus: string;
   omschrijving: string;
   zaaktype: string;
@@ -82,12 +97,22 @@ export type InformatieObjectT = {
 };
 
 export type ZaaktypeInformatieRelatieT = {
-  url?: string;
+  informatieobjecttype: InformatieObjectT;
+  richting: 'inkomend' | 'uitgaand' | 'intern';
+  url: string;
   zaaktype: string;
-  informatieobjecttype: string;
-  volgnummer: number;
-  richting: 'inkomend' | 'uitgaand' | 'definitief';
   statustype?: string | null;
+  volgnummer: number;
+};
+
+export type StatusTypeT = {
+  informeren: boolean;
+  isEindstatus: boolean;
+  omschrijving: string;
+  omschrijvingGeneriek: string;
+  url: string;
+  statustekst: string;
+  zaaktype: string;
 };
 
 //-----------------------//
@@ -102,6 +127,12 @@ export type SetDataVisualLayout = Dispatch<SetStateAction<DataVisualLayout>>;
 //----------------------//
 //    ComponentProps    //
 //----------------------//
+
+/** Props for Detailpage component  */
+export type DetailpageProps = {
+  zaaktype?: ZaaktypeResolvedT;
+  loading: boolean;
+};
 
 /** Props for Search component  */
 export type SearchProps = {
@@ -129,11 +160,57 @@ export type CardProps = {
   loading?: boolean;
 };
 
+/**- BulkEditor -**/
+/** Props for BulkEditor component */
+export interface BulkEditorProps {
+  loading: boolean;
+  zaaktype: ZaaktypeResolvedT;
+  informatieobjecttypen: InformatieObjectT[];
+  apiRef?: any;
+}
+
+/**- DataGrid -**/
 /** Props for DataGrid component  */
-export type DataGridProps = {
-  data: ZaaktypeT[] | InformatieObjectT[];
+export type DataGridProps = MuiDataGridProps & {
+  height?: number;
   loading?: boolean;
+  showQuickFilter?: boolean;
 };
+
+export interface GridActionHandlers {
+  handleEditClick: (id: GridRowId) => () => void;
+  handleSaveClick: (id: GridRowId) => () => void;
+  handleRowUp: (id: GridRowId) => () => void;
+  handleRowDown: (id: GridRowId) => () => void;
+  handleNavigate: (route: string) => () => void;
+}
+
+export interface GridHandlers {
+  onColumnVisibilityModelChange: (newModel: GridColumnVisibilityModel) => void;
+  onRowEditStop: GridEventListener<'rowEditStop'>;
+  processRowUpdate: (newRow: GridRowModel) => GridRowModel;
+  onRowModesModelChange: (newRowModesModel: GridRowModesModel) => void;
+  onRowSelectionModelChange: (
+    rowSelectionModel: GridRowSelectionModel,
+    details: GridCallbackDetails
+  ) => void;
+}
+
+/** DataGrid column types */
+export interface GetGridColIndex {
+  (loading: boolean, gridData: any, zaaktype?: ZaaktypeResolvedT): GridColIndex;
+}
+
+export interface GridColIndex {
+  title: GridColDef;
+  checkbox: GridColDef;
+  edit: GridColDef;
+  bulkEditor: GridColDef[];
+  default: GridColDef[];
+  link: GridColDef;
+}
+
+export type ColumnTypes = keyof GridColIndex;
 
 //-----------------//
 //    Functions    //
@@ -141,16 +218,12 @@ export type DataGridProps = {
 
 /**  Create single column definition function  */
 export type CreateSingleGridColDefFunction = (
-  columnLabel: keyof ZaaktypeT | keyof InformatieObjectT,
+  columnLabel: string,
   columnType: any
 ) => GridColDef | undefined;
 
 /**  Create multiple column definitions function  */
-export type CreateGridColDefFunction = (
-  data: ZaaktypeT[] | InformatieObjectT[],
-  handleClick: (params: any) => VoidFunction,
-  loading?: boolean
-) => GridColDef[];
+export type CreateGridColDefFunction = (data: ZaaktypeT[] | InformatieObjectT[]) => GridColDef[];
 
 //----------------//
 //    Response    //
@@ -162,8 +235,27 @@ export type PaginatedResponse<T> = {
   results: T[];
 };
 
-export type ZaaktypenResponse = PaginatedResponse<ZaaktypeT>;
-export type InformatieObjectenResposonse = PaginatedResponse<InformatieObjectT>;
+//-------------//
+//    Hooks    //
+//-------------//
+export interface useDataGridHook {
+  (
+    initialData: any,
+    loading: boolean,
+    columnNames: ColumnTypes[],
+    zaaktype?: ZaaktypeResolvedT
+  ): DataGridHookReturn;
+}
+
+export interface DataGridHookReturn {
+  rowSelectionModel: GridRowId[];
+  rows: any;
+  columns: GridColDef[];
+  columnVisibilityModel: GridColumnVisibilityModel;
+  rowModesModel: GridRowModesModel;
+  gridActionHandlers: GridActionHandlers;
+  gridHandlers: GridHandlers;
+}
 
 // Types from [#12], Fixes merge conflicts
 // Fixing this in next PR :(
@@ -203,4 +295,44 @@ export interface UserDataT {
   firstName?: string;
   lastName?: string;
   email?: string;
+}
+
+// Menu component types
+export interface MenuProps {
+  anchorEl: HTMLElement | null;
+  menuItems: MenuItems[];
+  onCloseMenu: () => void;
+}
+export interface MenuItems extends MenuItemProps {
+  label: string;
+}
+
+// Tabs component types
+export type TabsProps = {
+  /** Define tab names must be equal to children length */
+  tabNames: string[];
+  /** Define children must be equal to tabNames length */
+  children: ReactNode[];
+};
+
+//////// renderer
+
+export type RendererT = {
+  label?: string;
+  value: any;
+};
+
+export type RendererFunctionT = RendererT & {
+  type: 'url' | 'boolean' | 'string' | 'array';
+};
+
+declare module 'notistack' {
+  interface VariantOverrides {
+    error: {
+      hint: string;
+    };
+    unsavedChanges: {
+      hint: string;
+    };
+  }
 }

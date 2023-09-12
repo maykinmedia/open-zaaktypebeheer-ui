@@ -1,7 +1,21 @@
 /**
  * Define spacing for Stack components
+ * will be removed in next PR :(
+ * @deprecated Use spacings['size'] instead
  */
 export const spacing = { xs: 2, sm: 2, md: 3 };
+
+/**
+ * Define spacing for MUI components
+ */
+export const spacings = {
+  xsmall: 1,
+  small: { xs: 1, sm: 1, md: 2 },
+  medium: { xs: 2, sm: 2, md: 3 },
+  large: { xs: 3, sm: 3, md: 4 },
+  xlarge: { xs: 4, sm: 5, md: '48px' },
+  xxlarge: { xs: 4, sm: '48px', md: '64px' },
+};
 
 /**
  * Define styling for Search field
@@ -28,4 +42,24 @@ export const mediaQueries = {
   tablet: '(max-width:768px)',
   desktop: '(max-width: 1024px)',
   largeDesktop: '(max-width: 1440px)',
+};
+
+export const dynamicWidth = (columnCount: number, gapSize: number) => {
+  return `calc(100% / ${columnCount} - ${gapSize}px * ${columnCount - 1} / ${columnCount})`;
+};
+
+// Create a function that can be used to calculate the height that is left over
+export const headerHeight = 63.5;
+export const tabsHeight = 48;
+export const currentMargin = 48;
+
+export const stickyHeight = (type: string) => {
+  return {
+    top:
+      headerHeight +
+      (type !== 'tabs' ? tabsHeight : 0) +
+      (type !== 'tabs' && type !== 'sidebar' ? 40 : 0),
+    height: 'fit-content',
+    position: 'sticky',
+  };
 };

@@ -1,45 +1,65 @@
+import { flat } from '../../utils/flat';
+
 import {
-  GridActionsCellItem,
-  GridColDef,
-  GridColumnHeaderTitle,
-  GridColumnVisibilityModel,
-  GridLocaleText,
-} from '@mui/x-data-grid';
-import {
-  CreateGridColDefFunction,
   CreateSingleGridColDefFunction,
   InformatieObjectT,
+  ZaaktypeResolvedT,
   ZaaktypeT,
 } from '../../types/types';
 import { decamelizeText } from '../../utils/text';
 import { attributesFromDataArray } from '../../utils/array';
 import { uuidExtract } from '../../utils/extract';
-import { ArrowForward } from '@mui/icons-material';
-import { Skeleton, Tooltip } from '@mui/material';
+import { arrayOfObjectsSort } from '../../utils/sort';
 
 /**
- * Default columns for the DataGrid
- * These columns can't be set to hidden
+ * Options for richting edit column
+ * @use
  */
-export const defaultColumns = ['omschrijving', 'identificatie'];
+export const richtingOptions = ['inkomend', 'uitgaand', 'intern'];
 
 /**
- * Locale text for the DataGrid
- * @see https://mui.com/components/data-grid/localization/
+ * These are the default columns for the Datagrid
+ * These columns can't be set to hidden.
  */
-export const dataGridLocaleText: Partial<GridLocaleText> = {
-  toolbarDensity: 'Rijhoogte',
-  toolbarDensityCompact: 'Compact',
-  toolbarDensityStandard: 'Standaard',
-  toolbarDensityComfortable: 'Comfortabel',
-  toolbarColumns: 'Kolommen',
-  toolbarColumnsLabel: 'Kolommen',
-  columnsPanelTextFieldLabel: 'Zoek kolommen',
-  columnsPanelTextFieldPlaceholder: 'Titel kolom',
-  columnsPanelDragIconLabel: 'Kolom verplaatsen',
-  columnsPanelHideAllButton: 'Alles verbergen',
-  columnsPanelShowAllButton: 'Alles tonen',
-};
+export const defaultColumns = [
+  '__check__',
+  'link',
+  'actions',
+  'omschrijving',
+  'volgnummer',
+  'richting',
+  'statustype',
+];
+
+/**
+ * These are all the fields that are not rendered in either the DataGrid or the BulkEditor
+ */
+export const skippedColumns = [
+  '__check__',
+  'actions',
+  'omschrijving',
+  'volgnummer',
+  'richting',
+  'statustype',
+  'informatieobjecttype_url',
+  'id',
+  'url',
+  'catalogus',
+  'besluittypen',
+  'deelzaaktypen',
+  'eigenschappen',
+  'gerelateerdeZaaktypen',
+  'informatieobjecttypen',
+  'informatieobjecttype',
+  'productenOfDiensten',
+  'resultaattypen',
+  'roltypen',
+  'selectielijstProcestype',
+  'statustypen',
+  'trefwoorden',
+  'verantwoordingsrelatie',
+  'zaaktype',
+];
 
 /**
  * Add an id to each row of the DataGrid
@@ -48,26 +68,10 @@ export const dataGridLocaleText: Partial<GridLocaleText> = {
  * @param rows Zaaktypen or Attributen
  * @returns rows with id
  */
-export const rowsWithId = (rows: ZaaktypeT[] | InformatieObjectT[]) =>
+export const rowsWithId = (rows: ZaaktypeT[]) =>
   rows.map((row, i) => {
     return { ...row, id: row?.url ? uuidExtract(row.url) : i };
   });
-
-/**
- * Create a columnVisibilityModel, based on the attributes of the results.
- * Used for creating the column types for the DataGrid.
- * @param data Zaaktypen or Attributen
- * @returns GridColumnVisibilityModel
- */
-export const columnVisibilityModel = (data: ZaaktypeT[] | InformatieObjectT[]) => {
-  const columnVisibilityModel: GridColumnVisibilityModel = {};
-  const attributes = attributesFromDataArray(data);
-
-  for (const attribute of attributes) {
-    columnVisibilityModel[attribute] = defaultColumns.includes(attribute);
-  }
-  return columnVisibilityModel;
-};
 
 /**
  * Create an object with the attributes of the results and their types.
@@ -81,7 +85,9 @@ export const createResultWithTypes = (data: ZaaktypeT[] | InformatieObjectT[]) =
 
   for (const attribute of attributes) {
     for (const obj of data) {
-      resultWithTypes[attribute] = typeof obj[attribute as keyof typeof obj];
+      const value = obj[attribute as keyof typeof obj];
+      if (typeof value === 'undefined') break;
+      resultWithTypes[attribute] = typeof value;
     }
   }
   return resultWithTypes;
@@ -94,7 +100,6 @@ export const createResultWithTypes = (data: ZaaktypeT[] | InformatieObjectT[]) =
  * @returns column definition
  */
 export const createSingleGridColDef: CreateSingleGridColDefFunction = (columnLabel, columnType) => {
-  if (defaultColumns.includes(columnLabel)) return undefined;
   if (columnType === 'object') return undefined;
 
   return {
@@ -104,81 +109,59 @@ export const createSingleGridColDef: CreateSingleGridColDefFunction = (columnLab
     type: columnType,
     minWidth: columnType == 'boolean' ? 100 : 220,
     flex: columnType == 'boolean' ? 0 : 1,
-    hideable: !defaultColumns.includes(columnLabel),
   };
 };
 
 /**
- * Create a column definition for the DataGrid, based on the attributes of the results.
- * @param data Zaaktypen or Attributen
- * @param handleNavigate function for navigating to a zaaktype
- * @returns column definition
- * @see https://mui.com/components/data-grid/columns/
+ * Get initial data for the data grid
  */
-export const createGridColDef: CreateGridColDefFunction = (data, handleClick, loading) => {
-  const resultWithTypes = createResultWithTypes(data);
+export function getInitialData(
+  zaaktype?: ZaaktypeResolvedT,
+  informatieobjecttypen?: InformatieObjectT[]
+) {
+  const infoObjectTypes = zaaktype?.informatieobjecttypen;
+  const allInfoObjectTypes = informatieobjecttypen;
 
-  return [
-    {
-      field: 'Link',
-      type: 'actions',
-      description: 'Link naar zaaktype',
-      width: 40,
-      hideable: false,
-      getActions: (params) => [
-        <Tooltip title={`Open ${params.row.omschrijving}`}>
-          <GridActionsCellItem
-            color="primary"
-            icon={<ArrowForward />}
-            label={`Open ${params.row.omschrijving}`}
-            onClick={handleClick(params)}
-          />
-        </Tooltip>,
-      ],
-    },
-    {
-      field: 'omschrijving',
-      headerName: 'Omschrijving',
-      description: 'omschrijving',
-      type: 'string',
-      width: 220,
-      minWidth: 220,
-      flex: 2,
-      hideable: !defaultColumns.includes('omschrijving'),
-      renderHeader: () =>
-        loading ? (
-          <Skeleton variant="text" width={80} height={26} />
-        ) : (
-          <GridColumnHeaderTitle
-            label="Omschrijving"
-            columnWidth={220}
-            description="Omschrijving"
-          />
-        ),
-    },
-    {
-      field: 'identificatie',
-      headerName: 'Identificatie',
-      description: 'identificatie',
-      type: 'string',
-      minWidth: 220,
-      flex: 1,
-      hideable: !defaultColumns.includes('identificatie'),
-      renderHeader: () =>
-        loading ? (
-          <Skeleton variant="text" width={80} height={26} />
-        ) : (
-          <GridColumnHeaderTitle
-            label="Identificatie"
-            columnWidth={220}
-            description="Identificatie"
-          />
-        ),
-    },
-    ...(Object.entries(resultWithTypes)
-      .map(([columnLabel, columnType]) =>
-        createSingleGridColDef(columnLabel as keyof ZaaktypeT | keyof InformatieObjectT, columnType)
-      )
-      .filter((x) => x !== undefined) as GridColDef[]),
+  // If there is no zaaktype, return empty data
+  if (!infoObjectTypes) {
+    return { rows: [], selection: [], zaaktype: zaaktype };
+  }
+
+  // if there is no informatieobjecttypen, return zaaktype data
+  if (!allInfoObjectTypes) {
+    const infoObjectTransformed = infoObjectTypes.map((row: any) => createRow(row));
+    return { rows: infoObjectTransformed, selection: [], zaaktype: zaaktype };
+  }
+
+  // Merge zaaktype data with informatieobjecttypen data and exclude duplicates.
+
+  const existingRelations = arrayOfObjectsSort(
+    infoObjectTypes.map((row: any) => createRow(row)),
+    'volgnummer',
+    'asc'
+  );
+  const allData = allInfoObjectTypes.map((row) => createRow(row));
+
+  const selectedRows = existingRelations.map((item: any) => item.id);
+
+  const mergedData = [
+    ...existingRelations,
+    ...allData.filter((row) => !selectedRows.includes(row.id)),
   ];
-};
+
+  const sortMergedData = arrayOfObjectsSort([...mergedData], 'volgnummer', 'asc');
+
+  return { rows: sortMergedData, selection: selectedRows, zaaktype: zaaktype };
+}
+
+// Create row and add extra fields to prevent errors
+export function createRow(row: any) {
+  const flattedRow = flat(row);
+  return {
+    volgnummer: '',
+    richting: '',
+    statustype: '',
+    id: uuidExtract(flattedRow.informatieobjecttype_url || flattedRow.url),
+    ...flattedRow,
+  };
+}

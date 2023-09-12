@@ -19,3 +19,7 @@ export const decamelizeText = (string: string, noUcFirst?: true, separator?: str
     return ucFirstText(decamelize(string, { separator: separator ? separator : ' ' }));
   return decamelize(string, { separator: separator });
 };
+
+export const widthText = (string: string, xWidth: number) => {
+  return 30 + Array.from(string).length * xWidth;
+};

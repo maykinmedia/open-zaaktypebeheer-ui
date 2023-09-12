@@ -31,7 +31,13 @@ function DataGridLoadingOverlay() {
     for (let i = 0; i < 10; i += 1) {
       for (const column of columns) {
         const width = Math.round(random());
-        if (column.field === 'Link') array.push(<SkeletonCell key={`empty-${i}-link`} />);
+        if (column.field === 'link') array.push(<SkeletonCell key={`empty-${i}-link`} />);
+        else if (column.field === '__check__')
+          array.push(
+            <SkeletonCell key={`column-${i}-${column.field}`} sx={{ justifyContent: column.align }}>
+              <Skeleton sx={{ mx: 1 }} variant="rounded" width={`40%`} />
+            </SkeletonCell>
+          );
         else
           array.push(
             <SkeletonCell key={`column-${i}-${column.field}`} sx={{ justifyContent: column.align }}>
