@@ -6,7 +6,7 @@ import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Alert, AlertTitle, Box, CardActions, Stack, styled } from '@mui/material';
+import { Alert, AlertTitle, Box, CardActions } from '@mui/material';
 
 const useStyles = makeStyles(() => ({
   root: {
