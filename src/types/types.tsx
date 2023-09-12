@@ -16,7 +16,7 @@ import {
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { AuthContextType } from '../components/Auth/Auth';
-import { MenuItemProps } from '@mui/material';
+import { MenuItemProps, LinkProps } from '@mui/material';
 
 //-----------------------//
 //    Data Structures    //
@@ -141,6 +141,12 @@ export type SearchProps = {
   label: string;
   fullWidth?: boolean;
 };
+
+/** Props for Breadcrumbs component */
+export interface StyledRoutedLinkProps extends LinkProps {
+  to: string;
+  replace?: boolean;
+}
 
 /** Props for ToggleButton component  */
 export type ToggleButtonProps = {
