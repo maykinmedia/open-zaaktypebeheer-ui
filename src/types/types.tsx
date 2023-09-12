@@ -4,8 +4,9 @@
  */
 import { GridColDef } from '@mui/x-data-grid';
 import { Dispatch, SetStateAction } from 'react';
-import { LinkProps, NavigateFunction } from 'react-router-dom';
+import { NavigateFunction } from 'react-router-dom';
 import { AuthContextType } from '../components/Auth/Auth';
+import { LinkProps } from '@mui/material';
 
 //-----------------------//
 //    Data Structures    //
