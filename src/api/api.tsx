@@ -145,5 +145,5 @@ export async function throwForStatus(response: Response) {
     }
   }
 
-  throw new ErrorClass(errorMessage, response.status, responseData.detail);
+  throw new ErrorClass(errorMessage, response.status, responseData?.detail);
 }
