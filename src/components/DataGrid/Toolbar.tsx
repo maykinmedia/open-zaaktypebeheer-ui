@@ -3,13 +3,16 @@ import {
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarDensitySelector,
+  GridToolbarProps,
+  GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
 
-const DataGridToolbar = () => {
+const DataGridToolbar = (props: GridToolbarProps) => {
   return (
-    <GridToolbarContainer>
-      <GridToolbarColumnsButton startIcon={<Tune />} size="medium" />
-      <GridToolbarDensitySelector size="medium" />
+    <GridToolbarContainer sx={{ p: 1 }}>
+      {props.showQuickFilter && <GridToolbarQuickFilter sx={{ mr: 'auto' }} />}
+      <GridToolbarColumnsButton startIcon={<Tune />} size="small" />
+      <GridToolbarDensitySelector size="small" />
     </GridToolbarContainer>
   );
 };

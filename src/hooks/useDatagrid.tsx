@@ -89,9 +89,7 @@ const useDataGrid: useDataGridHook = (initialData, loading, columnNames) => {
   function onRowSelectionModelChange(newRowSelectionModel: GridRowSelectionModel) {
     const t = arrayOfObjectsSort(
       rows.map((field: any) => {
-        console.log(field.id, newRowSelectionModel.includes(field.id), field);
         if (newRowSelectionModel.includes(field.id)) {
-          console.log(field.id);
           return {
             ...field,
             volgnummer: newRowSelectionModel.indexOf(field.id) + 1,

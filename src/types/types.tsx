@@ -160,6 +160,7 @@ export interface BulkEditorProps {
   loading: boolean;
   zaaktype: ZaaktypeResolvedT;
   informatieobjecttypen: InformatieObjectT[];
+  apiRef?: any;
 }
 
 /**- DataGrid -**/
@@ -318,3 +319,14 @@ export type RendererT = {
 export type RendererFunctionT = RendererT & {
   type: 'url' | 'boolean' | 'string' | 'array';
 };
+
+declare module 'notistack' {
+  interface VariantOverrides {
+    error: {
+      hint: string;
+    };
+    unsavedChanges: {
+      hint: string;
+    };
+  }
+}

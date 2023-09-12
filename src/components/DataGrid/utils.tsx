@@ -3,23 +3,13 @@ import { flat } from '../../utils/flat';
 import {
   CreateSingleGridColDefFunction,
   InformatieObjectT,
-  StatusTypeT,
   ZaaktypeResolvedT,
   ZaaktypeT,
 } from '../../types/types';
 import { decamelizeText } from '../../utils/text';
 import { attributesFromDataArray } from '../../utils/array';
 import { uuidExtract } from '../../utils/extract';
-
-/**
- * Create statustype options to display in the BulkEditor
- * These options are based on the statustypen of the zaaktype
- * @used in src/components/BulkEditor/utils.tsx
- */
-export const getStatusTypeOptions = (zaaktype?: ZaaktypeResolvedT) => {
-  if (!zaaktype) return [];
-  return zaaktype?.statustypen?.map((statustype: StatusTypeT) => statustype.omschrijving);
-};
+import { arrayOfObjectsSort } from '../../utils/sort';
 
 /**
  * Options for richting edit column
@@ -144,7 +134,12 @@ export function getInitialData(
   }
 
   // Merge zaaktype data with informatieobjecttypen data and exclude duplicates.
-  const existingRelations = infoObjectTypes.map((row: any) => createRow(row));
+
+  const existingRelations = arrayOfObjectsSort(
+    infoObjectTypes.map((row: any) => createRow(row)),
+    'volgnummer',
+    'asc'
+  );
   const allData = allInfoObjectTypes.map((row) => createRow(row));
 
   const selectedRows = existingRelations.map((item: any) => item.id);
@@ -154,7 +149,9 @@ export function getInitialData(
     ...allData.filter((row) => !selectedRows.includes(row.id)),
   ];
 
-  return { rows: mergedData, selection: selectedRows, zaaktype: zaaktype };
+  const sortMergedData = arrayOfObjectsSort([...mergedData], 'volgnummer', 'asc');
+
+  return { rows: sortMergedData, selection: selectedRows, zaaktype: zaaktype };
 }
 
 // Create row and add extra fields to prevent errors

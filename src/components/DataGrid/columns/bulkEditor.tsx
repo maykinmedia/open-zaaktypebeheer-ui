@@ -1,10 +1,20 @@
 import { GridColDef, GridColumnHeaderTitle } from '@mui/x-data-grid';
-import { getStatusTypeOptions, richtingOptions } from '../utils';
+import { richtingOptions } from '../utils';
 import { ucFirstText, widthText } from '../../../utils/text';
 import { Skeleton } from '@mui/material';
+import { StatusTypeT } from '../../../types/types';
 
 export const bulkEditorColumns = (loading: boolean, zaaktype?: any) => {
-  const statusTypeMap = getStatusTypeOptions(zaaktype);
+  const statusTypeMap = zaaktype
+    ? zaaktype?.statustypen?.map((statustype: StatusTypeT) => statustype.omschrijving)
+    : [];
+
+  const getStatusTypeOmschrijvingByUrl = (url: string) => {
+    const statusType = zaaktype?.statustypen?.find(
+      (statusType: StatusTypeT) => statusType.url === url || statusType.omschrijving === url
+    );
+    return statusType?.omschrijving;
+  };
 
   const columns: GridColDef[] = [
     {
@@ -21,8 +31,8 @@ export const bulkEditorColumns = (loading: boolean, zaaktype?: any) => {
       editable: true,
       width: 180,
       valueFormatter: (params) => {
-        if (params.api.isRowSelected(params.id ? params.id : 0))
-          return params.value || 'Geen statustype';
+        if (params.api.isRowSelected(params.id!))
+          return getStatusTypeOmschrijvingByUrl(params.value) || 'Geen statustype';
       },
     },
     {
