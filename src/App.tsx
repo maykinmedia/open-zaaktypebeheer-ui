@@ -8,6 +8,7 @@ import { ThemeProvider } from '@emotion/react';
 import { theme } from './utils/theme';
 import ReportComplete from './components/Snackbar/Snackbar';
 import { SnackbarProvider } from 'notistack';
+import ZaaktypeView from './views/ZaaktypenView';
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
             <Route element={<RequireAuth />}>
               <Route path="/" element={<BaseView />}>
                 <Route path="/" element={<DashboardView />} />
+                <Route path="/zaaktypen" element={<DashboardView />} />
+                <Route path="/zaaktypen/:zaaktypeUuid" element={<ZaaktypeView />} />
                 <Route path="/zaaktypen/:zaaktypeUuid/wijzigen" element={<ZaaktypeEditView />} />
               </Route>
             </Route>

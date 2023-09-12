@@ -97,10 +97,10 @@ export type InformatieObjectT = {
 };
 
 export type ZaaktypeInformatieRelatieT = {
-  informatieobjecttype: InformatieObjectT;
-  richting: 'inkomend' | 'uitgaand' | 'intern';
   url: string;
   zaaktype: string;
+  informatieobjecttype: InformatieObjectT;
+  richting: 'inkomend' | 'uitgaand' | 'intern';
   statustype?: string | null;
   volgnummer: number;
 };
@@ -113,6 +113,20 @@ export type StatusTypeT = {
   url: string;
   statustekst: string;
   zaaktype: string;
+};
+
+export type MainInfoStructure = MainInfoArticleStructure[];
+
+export type MainInfoArticleStructure = {
+  label: string;
+  slug: string;
+  fields: MainInfoColumnStructure[];
+};
+
+export type MainInfoColumnStructure = {
+  label: string;
+  value?: boolean | string[] | string | null | undefined;
+  fullWidth: boolean;
 };
 
 //-----------------------//
@@ -133,6 +147,23 @@ export type DetailpageProps = {
   zaaktype?: ZaaktypeResolvedT;
   loading: boolean;
 };
+
+export type MainInfoProps = {
+  zaaktype?: ZaaktypeResolvedT;
+  loading: boolean;
+};
+
+export type MainInfoSidebarProps = MainInfoProps & {
+  scrolledIndex: number;
+};
+
+export interface MainInfoArticleProps extends MainInfoArticleStructure {
+  loading: boolean;
+}
+
+export interface MainInfoColumnProps extends MainInfoColumnStructure {
+  loading: boolean;
+}
 
 /** Props for Search component  */
 export type SearchProps = {
@@ -224,6 +255,10 @@ export type CreateSingleGridColDefFunction = (
 
 /**  Create multiple column definitions function  */
 export type CreateGridColDefFunction = (data: ZaaktypeT[] | InformatieObjectT[]) => GridColDef[];
+
+export type GetMainInfoStructureFunction = (zaaktype?: ZaaktypeResolvedT) => MainInfoStructure;
+
+export type GetAvailibleDataFunction = (mainInfoStructure: MainInfoStructure) => boolean[];
 
 //----------------//
 //    Response    //
