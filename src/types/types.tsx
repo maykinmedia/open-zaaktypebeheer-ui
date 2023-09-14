@@ -14,8 +14,6 @@ import {
   GridCallbackDetails,
 } from '@mui/x-data-grid';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
-import { NavigateFunction } from 'react-router-dom';
-import { AuthContextType } from '../components/Auth/Auth';
 import { MenuItemProps, LinkProps } from '@mui/material';
 
 //-----------------------//
@@ -293,31 +291,17 @@ export interface DataGridHookReturn {
   gridHandlers: GridHandlers;
 }
 
-// Types from [#12], Fixes merge conflicts
-// Fixing this in next PR :(
-export type GetSiteTreeFunction = (
-  navigate: NavigateFunction,
-  auth: AuthContextType
-) => SiteTreeOptions;
-
-export type SiteTreeOptions = SiteTreeOptionT[];
-
-export interface SiteTreeOptionT {
-  label: string;
-  Icon?: JSX.Element;
-  onClick?: () => void;
-}
-
 export interface DrawerT {
   open: boolean;
   toggleDrawer: ToggleDrawerFunction;
+  siteTree: {
+    label: string;
+    to: string;
+    onClick?: () => void;
+  }[];
 }
 
 export type ToggleDrawerFunction = (newState: boolean) => (event: any) => void;
-
-export type DrawerListT = {
-  siteTreeOptions: SiteTreeOptions;
-};
 
 export interface LogoT
   extends Omit<

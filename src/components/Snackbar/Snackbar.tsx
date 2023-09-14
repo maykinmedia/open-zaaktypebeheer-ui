@@ -1,6 +1,6 @@
 import { useState, forwardRef, useCallback } from 'react';
-import { makeStyles } from '@mui/styles';
-import { useSnackbar, SnackbarContent, CustomContentProps } from 'notistack';
+import { styled } from '@mui/material';
+import { useSnackbar, SnackbarContent as MuiSnackbarContent, CustomContentProps } from 'notistack';
 import Collapse from '@mui/material/Collapse';
 import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';
@@ -8,11 +8,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Alert, AlertTitle, Box, CardActions } from '@mui/material';
 
-const useStyles = makeStyles(() => ({
-  root: {
-    '@media (min-width:600px)': {
-      minWidth: '344px !important',
-    },
+const SnackbarContent = styled(MuiSnackbarContent)(() => ({
+  '@media (min-width:600px)': {
+    minWidth: '344px !important',
   },
 }));
 
@@ -23,7 +21,6 @@ interface ReportCompleteProps extends CustomContentProps {
 
 // Name should be changed.
 const ReportComplete = forwardRef<HTMLDivElement, ReportCompleteProps>(({ id, ...props }, ref) => {
-  const classes = useStyles();
   const { closeSnackbar } = useSnackbar();
   const [expanded, setExpanded] = useState(false);
 
@@ -44,7 +41,7 @@ const ReportComplete = forwardRef<HTMLDivElement, ReportCompleteProps>(({ id, ..
       ? 'info'
       : props.variant;
   return (
-    <SnackbarContent ref={ref} className={classes.root}>
+    <SnackbarContent ref={ref}>
       <Card sx={{ width: '100%' }}>
         <Alert
           onClose={handleDismiss}

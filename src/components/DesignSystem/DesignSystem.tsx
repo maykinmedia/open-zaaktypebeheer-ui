@@ -40,6 +40,7 @@ export const mediaQueries = {
   mobile: '(max-width:420px)',
   largeMobile: '(max-width:600px)',
   tablet: '(max-width:768px)',
+  laptop: '(max-width:900px)',
   desktop: '(max-width: 1024px)',
   largeDesktop: '(max-width: 1440px)',
 };
@@ -49,7 +50,7 @@ export const dynamicWidth = (columnCount: number, gapSize: number) => {
 };
 
 // Create a function that can be used to calculate the height that is left over
-export const headerHeight = 63.5;
+export const headerHeight = 84;
 export const tabsHeight = 48;
 export const currentMargin = 48;
 
@@ -62,4 +63,15 @@ export const stickyHeight = (type: string) => {
     height: 'fit-content',
     position: 'sticky',
   };
+};
+
+export const componentSize = {
+  header: {
+    default: 64,
+    laptop: 84,
+  },
+  tabs: {
+    default: 48,
+    laptop: 48,
+  },
 };

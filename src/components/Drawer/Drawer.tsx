@@ -1,26 +1,35 @@
-import { Box, IconButton, Button, Divider, SwipeableDrawer, styled } from '@mui/material';
+import { Box, IconButton, Divider, SwipeableDrawer, styled } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Logo from '../Logo/Logo';
 import List from '../List/List';
-import { DrawerT } from '../../types/types';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../Auth/Auth';
-import { getSiteTree } from '../../utils/siteTree';
+import { ToggleDrawerFunction } from '../../types/types';
+import { Link } from 'react-router-dom';
 
-const DrawerHeader = styled('section')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  justifyContent: 'space-between',
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-}));
+const DrawerHeader = styled('section')((props) => {
+  // @ts-expect-error headerheight is not defined in default props but is defined in props
+  const { theme, headerHeight } = props;
+  return {
+    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(2),
+    justifyContent: 'space-between',
+    height: headerHeight,
+  };
+});
 
-const Drawer = ({ open, toggleDrawer }: DrawerT) => {
-  const navigate = useNavigate();
-  const auth = useAuth();
-  const siteTreeOptions = getSiteTree(navigate, auth);
+export interface DrawerT {
+  open: boolean;
+  toggleDrawer: ToggleDrawerFunction;
+  siteTree: {
+    label: string;
+    to: string;
+    onClick?: () => void;
+  }[];
+  headerHeight: number;
+}
 
+const Drawer = ({ open, toggleDrawer, siteTree, headerHeight }: DrawerT) => {
   return (
     <SwipeableDrawer
       anchor={'right'}
@@ -34,18 +43,19 @@ const Drawer = ({ open, toggleDrawer }: DrawerT) => {
         onKeyDown={toggleDrawer(false)}
         role="presentation"
       >
-        <DrawerHeader>
+        {/* @ts-expect-error headerheight is not defined in default props but is defined in props */}
+        <DrawerHeader headerHeight={headerHeight}>
           <IconButton onClick={toggleDrawer(false)}>
             <ChevronRightIcon />
           </IconButton>
-          <Button onClick={() => navigate('/')}>
+          <Link to="/" onClick={toggleDrawer(false)}>
             <Logo height={32} />
-          </Button>
+          </Link>
         </DrawerHeader>
         <Divider />
-        <List siteTreeOptions={siteTreeOptions.slice(0, -1)} />
+        <List options={siteTree.slice(0, -1)} />
         <Divider />
-        <List siteTreeOptions={siteTreeOptions.slice(-1)} />
+        <List options={siteTree.slice(-1)} />
       </Box>
     </SwipeableDrawer>
   );

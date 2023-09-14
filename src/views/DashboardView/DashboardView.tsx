@@ -11,6 +11,7 @@ import Select from '../../components/Select/Select';
 import { uuidExtract } from '../../utils/extract';
 import ErrorAlert from '../../components/Errors/ErrorAlert.tsx';
 import GridAndStack from './GridAndStack.tsx';
+import useCalculatedSize from '../../hooks/useCalculatedSize';
 
 const ARRAY_FOR_SKELETON = new Array(10).fill({}).map((_item, i) => ({ id: i }));
 
@@ -21,6 +22,7 @@ const DashboardView = () => {
 
   const [query, setQuery] = useState<Query>('');
   const [dataVisualLayout, setDataVisualLayout] = useState<DataVisualLayout>('blocks');
+  const headerHeight = useCalculatedSize('header');
 
   useEffect(() => {
     if (selectedCatalogus) return;
@@ -78,7 +80,7 @@ const DashboardView = () => {
         spacing={spacings.medium}
         useFlexGap
         position={'sticky'}
-        top={64}
+        top={headerHeight}
         zIndex={1}
         sx={{
           pb: 2,
