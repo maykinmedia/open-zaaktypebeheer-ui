@@ -1,56 +1,99 @@
-import { Alert, Skeleton, Stack, Typography } from '@mui/material';
+import { Alert, Box, Skeleton, Stack, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import Search from '../components/Search/Search';
 import Card from '../components/Card/Card';
 import ToggleButton from '../components/ToggleButton/ToggleButton';
 import DataGrid from '../components/DataGrid/DataGrid';
 import { attributeOnQueryFilter } from '../utils/filter';
-import { Query, DataVisualLayout, ZaaktypeT, ColumnTypes } from '../types/types';
-import { spacing } from '../components/DesignSystem/DesignSystem';
+import {
+  Query,
+  DataVisualLayout,
+  ZaaktypeT,
+  ColumnTypes,
+  CatalogusT,
+  SavedCatalogusT,
+} from '../types/types';
+import { spacings } from '../components/DesignSystem/DesignSystem';
 import { useAsync } from 'react-use';
 import { get } from '../api/api';
 import useDataGrid from '../hooks/useDatagrid';
-import { rowsWithId } from '../components/DataGrid/utils';
+import Select from '../components/Select/Select';
+import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
+import { uuidExtract } from '../utils/extract';
+
+const columnNames: ColumnTypes[] = ['link', 'title', 'default'];
 
 const DashboardView = () => {
+  const currentCatalogi = getLocalStorage('catalogus')
+    ? getLocalStorage('catalogus')
+    : { value: 'all', label: 'Alle catalogussen' };
+
+  const [catalogus, setCatalogus] = useState<SavedCatalogusT>(currentCatalogi!);
+  const [catalogussen, setCatalogussen] = useState<CatalogusT[]>(undefined!);
   const [query, setQuery] = useState<Query>('');
   const [dataVisualLayout, setDataVisualLayout] = useState<DataVisualLayout>('blocks');
 
   const { loading, value, error } = useAsync(async () => {
-    const results: ZaaktypeT[] = await get(`catalogi/zaaktypen/?status=alles`);
-    return { results };
-  }, []);
+    let endpoint = 'catalogi/zaaktypen/?status=alles';
+    if (catalogus.value !== 'all') endpoint += `&catalogus=${catalogus.value}`;
+    if (!catalogussen) setCatalogussen(await get('catalogi/catalogussen/'));
+    const zaaktypen: ZaaktypeT[] = await get(endpoint);
 
-  const filteredResults = attributeOnQueryFilter(query, value?.results!, 'omschrijving');
-  const zaaktypen: ZaaktypeT[] = !filteredResults ? new Array(10).fill({}) : filteredResults; // Used to show skeleton loading
-  const columnNames: ColumnTypes[] = ['link', 'title', 'default'];
+    return { zaaktypen, catalogussen };
+  }, [catalogus]);
+
+  // Used to show the initial loading skeleton
+  const zaaktypen = value?.zaaktypen
+    ? attributeOnQueryFilter(query, value?.zaaktypen!, 'omschrijving')
+    : new Array(10).fill({});
+
   const initialData = useMemo(
     () => ({
       selection: [],
-      rows: rowsWithId(zaaktypen),
+      rows: zaaktypen?.map((zaaktype, i) => ({
+        ...zaaktype,
+        id: zaaktype.url ? uuidExtract(zaaktype.url) : i,
+      })),
     }),
     [zaaktypen]
   );
+
   const { gridHandlers, gridActionHandlers, ...gridData } = useDataGrid(
     initialData,
     loading,
     columnNames
   );
 
+  const changeCatalogi = (_e: any, child: any) => {
+    const value = {
+      value: child.props.value,
+      label: child.props.children,
+    };
+    setLocalStorage('catalogus', value);
+    setCatalogus(value);
+  };
+
   return (
-    <Stack component={'article'} spacing={spacing} useFlexGap>
-      <Typography variant="h1">{loading ? <Skeleton width={160} /> : 'Dashboard'}</Typography>
+    <Stack component={'article'} spacing={spacings.large} useFlexGap>
+      <Box width={'100%'}>
+        <Typography variant="h1">
+          {loading && !error ? <Skeleton width={160} /> : 'Dashboard'}
+        </Typography>
+      </Box>
       <Stack
         width={'100%'}
         direction={'row'}
         flexWrap={'wrap'}
-        spacing={spacing}
+        spacing={spacings.medium}
         useFlexGap
         position={'sticky'}
         top={64}
         zIndex={1}
         sx={{
+          pb: 2,
           backgroundColor: 'white',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
         }}
       >
         <Search label="Zoek naar zaaktypen" query={query} setQuery={setQuery} />
@@ -58,19 +101,48 @@ const DashboardView = () => {
           dataVisualLayout={dataVisualLayout}
           setDataVisualLayout={setDataVisualLayout}
         />
+        <Select
+          sx={{
+            ml: { md: 'auto' },
+          }}
+          selectedValue={catalogus}
+          onChange={changeCatalogi}
+          disabled={loading}
+          structure={{
+            labelKey: 'domein',
+            valueKey: 'url',
+            data: catalogussen,
+          }}
+          label={'Selecteer catalogus'}
+          defaultValue={'Alle catalogussen'}
+          optionSort={'asc'}
+        />
+
+        <Box width={'100%'}>
+          <Typography variant={'h2'}>
+            {loading && !error ? (
+              <Skeleton width={130} />
+            ) : (
+              `${zaaktypen && !error ? zaaktypen.length : 0} Zaaktypen`
+            )}
+          </Typography>
+        </Box>
       </Stack>
       {error ? (
         <Alert severity="error">{error.message}</Alert>
       ) : (
         <>
-          <Typography variant={'h2'}>
-            {loading ? <Skeleton width={130} /> : `${zaaktypen.length} Zaaktypen`}
-          </Typography>
           {dataVisualLayout === 'datagrid' && (
-            <DataGrid {...gridHandlers} {...gridData} loading={loading} />
+            <DataGrid height={610} {...gridHandlers} {...gridData} loading={loading} />
           )}
           {dataVisualLayout === 'blocks' && (
-            <Stack direction={'row'} flexWrap={'wrap'} width={'100%'} spacing={spacing} useFlexGap>
+            <Stack
+              direction={'row'}
+              flexWrap={'wrap'}
+              width={'100%'}
+              spacing={spacings.medium}
+              useFlexGap
+            >
               {zaaktypen.map((zaaktype: ZaaktypeT, i: number) => (
                 <Card key={i} zaaktype={zaaktype} loading={loading} />
               ))}

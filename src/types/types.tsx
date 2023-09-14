@@ -129,6 +129,24 @@ export type ContentColumnStructure = {
   fullWidth: boolean;
 };
 
+export type CatalogusT = {
+  url: string;
+  domein: string;
+  rsin: string;
+  contactpersoonBeheerNaam: string;
+  contactpersoonBeheerTelefoonnummer: string;
+  contactpersoonBeheerEmailadres: string;
+  concept: boolean;
+  zaaktypen: string[];
+  besluittypen: string[];
+  informatieobjecttypen: string[];
+};
+
+export type SavedCatalogusT = {
+  value: CatalogusT['url'];
+  label: CatalogusT['domein'];
+};
+
 //-----------------------//
 //    Use-state Types    //
 //-----------------------//
@@ -225,6 +243,7 @@ export type ColumnTypes = keyof GridColIndex;
 
 /**  Create single column definition function  */
 export type CreateSingleGridColDefFunction = (
+  loading: boolean,
   columnLabel: string,
   columnType: any
 ) => GridColDef | undefined;

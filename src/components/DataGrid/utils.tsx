@@ -6,10 +6,12 @@ import {
   ZaaktypeResolvedT,
   ZaaktypeT,
 } from '../../types/types';
-import { decamelizeText } from '../../utils/text';
+import { decamelizeText, widthText } from '../../utils/text';
 import { attributesFromDataArray } from '../../utils/array';
 import { uuidExtract } from '../../utils/extract';
 import { arrayOfObjectsSort } from '../../utils/sort';
+import { Skeleton } from '@mui/material';
+import { GridColumnHeaderTitle } from '@mui/x-data-grid';
 
 /**
  * Options for richting edit column
@@ -99,9 +101,14 @@ export const createResultWithTypes = (data: ZaaktypeT[] | InformatieObjectT[]) =
  * @param value Value of zaaktype or informatieobject key
  * @returns column definition
  */
-export const createSingleGridColDef: CreateSingleGridColDefFunction = (columnLabel, columnType) => {
+export const createSingleGridColDef: CreateSingleGridColDefFunction = (
+  loading,
+  columnLabel,
+  columnType
+) => {
   if (columnType === 'object') return undefined;
 
+  const label = decamelizeText(columnLabel);
   return {
     field: columnLabel,
     headerName: decamelizeText(columnLabel),
@@ -109,6 +116,12 @@ export const createSingleGridColDef: CreateSingleGridColDefFunction = (columnLab
     type: columnType,
     minWidth: columnType == 'boolean' ? 100 : 220,
     flex: columnType == 'boolean' ? 0 : 1,
+    renderHeader: () =>
+      loading ? (
+        <Skeleton variant="text" width={widthText(label, 6)} height={26} />
+      ) : (
+        <GridColumnHeaderTitle label={label} columnWidth={120} description={label} />
+      ),
   };
 };
 
@@ -129,7 +142,11 @@ export function getInitialData(
 
   // if there is no informatieobjecttypen, return zaaktype data
   if (!allInfoObjectTypes) {
-    const infoObjectTransformed = infoObjectTypes.map((row: any) => createRow(row));
+    const infoObjectTransformed = arrayOfObjectsSort(
+      infoObjectTypes.map((row: any) => createRow(row)),
+      'volgnummer',
+      'asc'
+    );
     return { rows: infoObjectTransformed, selection: [], zaaktype: zaaktype };
   }
 

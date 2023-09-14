@@ -11,7 +11,7 @@ const gridColIndex: GetGridColIndex = (loading, gridData, zaaktype) => {
     title: titleColumn(loading),
     checkbox: checkBoxColumn,
     edit: editColumn(loading, gridData),
-    default: defaultColumns(gridData.rows),
+    default: defaultColumns(loading, gridData.rows),
     bulkEditor: bulkEditorColumns(loading, zaaktype),
     link: linkColumn(loading, gridData),
   };
