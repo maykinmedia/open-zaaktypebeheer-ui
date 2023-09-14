@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Login } from '@mui/icons-material/';
 import { Box, Button, Paper, TextField, Typography } from '@mui/material';
+import Link from '@mui/material/Link';
 import { useAuth } from '../components/Auth/Auth';
 import { useNavigate } from 'react-router-dom';
 import logo from '/logo.svg';
@@ -9,8 +10,16 @@ import { APIError, BadRequest } from '../errors/errors';
 
 export default function LoginView() {
   const [error, setError] = useState<APIError>(undefined!);
+  // TODO use context when it is merged
+  // const config = useConfig();
+  const config = { oidcEnabled: true, oidcLoginUrl: 'http://tralala.lala' };
   const auth = useAuth();
   const navigate = useNavigate();
+
+  const getOidcLoginUrl = () => {
+    const nextUrl = new URL('/', window.location.href);
+    return config.oidcLoginUrl + '?next=' + nextUrl.href;
+  };
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,6 +82,11 @@ export default function LoginView() {
         >
           Login
         </Button>
+        {config.oidcEnabled && (
+          <Link href={getOidcLoginUrl()} sx={{ 'text-align': 'center' }} underline="hover">
+            Inloggen met organisatie account
+          </Link>
+        )}
       </Paper>
     </Box>
   );
