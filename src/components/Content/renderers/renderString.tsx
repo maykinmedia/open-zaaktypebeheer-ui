@@ -1,7 +1,11 @@
 import { Typography } from '@mui/material';
-import { RendererT } from '../../../types/types';
 
-const RenderString = ({ value }: RendererT) => {
+interface RenderStringProps {
+  label?: string;
+  value: any;
+}
+
+const RenderString = ({ value }: RenderStringProps) => {
   return <Typography variant="body1">{value}</Typography>;
 };
 

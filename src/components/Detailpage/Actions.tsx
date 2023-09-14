@@ -6,10 +6,12 @@ import { MouseEvent, useState } from 'react';
 import Menu from '../Menu/Menu';
 import { MenuItems } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
+import { useConfig } from '../Config/Config';
 
 export default function DetailpageActions({ concept }: { concept?: boolean }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
+  const config = useConfig();
 
   const onOpenMenu = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
   const onCloseMenu = () => setAnchorEl(null);
@@ -20,7 +22,7 @@ export default function DetailpageActions({ concept }: { concept?: boolean }) {
       label: 'Wijzig in admin',
       onClick: onCloseMenu,
       // @ts-expect-error href and target are not a valid MenuItem props, but are required for the `a` tag.
-      href: import.meta.env.VITE_ADMIN_URL, // Should be changed to configured admin url defined in the admin.
+      href: config.openzaakAdminUrl,
       target: '_blank',
     },
   ];

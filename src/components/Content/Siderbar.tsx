@@ -1,24 +1,29 @@
-import { ListItemText, Skeleton, Stack, Typography, styled } from '@mui/material';
-import { spacings } from '../DesignSystem/DesignSystem';
+import { ListItemText, Skeleton, Stack, Typography } from '@mui/material';
+import { currentMargin, headerHeight, spacings, tabsHeight } from '../DesignSystem/DesignSystem';
 import { widthText } from '../../utils/text';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import { getAvailibleData, getMainInfoStructure, scrollMarginTop } from './utils';
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { HashLink } from 'react-router-hash-link';
-import { MainInfoSidebarProps } from '../../types/types';
+import { ContentStructure } from '../../types/types';
 
-const MainInfoSidebar = ({ zaaktype, loading, scrolledIndex }: MainInfoSidebarProps) => {
-  const dataStructure = useMemo(() => getMainInfoStructure(zaaktype), [zaaktype]);
-  const availibleData = useMemo(() => getAvailibleData(dataStructure), [dataStructure]);
+interface ContentSidebarProps {
+  loading: boolean;
+  scrolledIndex: number;
+  contentStructure: ContentStructure;
+}
 
+// Fix this to be generic and not hardcoded
+const scrollMargin = headerHeight + currentMargin + tabsHeight;
+
+const ContentSidebar = ({ loading, scrolledIndex, contentStructure }: ContentSidebarProps) => {
   return (
     <Stack
       component={'aside'}
       spacing={spacings.small}
       position={'sticky'}
-      top={scrollMarginTop}
+      top={scrollMargin}
       height={'fit-content'}
     >
       <Typography variant="h3" component="h2">
@@ -26,12 +31,11 @@ const MainInfoSidebar = ({ zaaktype, loading, scrolledIndex }: MainInfoSidebarPr
       </Typography>
       <nav aria-label="Zaaktype sidebar">
         <List disablePadding>
-          {dataStructure.map((row: any, i: number) => {
-            if (!loading && !availibleData?.[i]) return; // no data, no row, no sidebar item
+          {contentStructure?.map((row: any, i: number) => {
             return (
               <ListItem key={i} disablePadding sx={{ borderLeft: 1, borderColor: 'divider' }}>
                 <ListItemButton
-                  component={styled(HashLink)({})}
+                  component={HashLink}
                   smooth
                   to={loading ? '' : '#' + row.slug}
                   selected={loading ? false : scrolledIndex === i}
@@ -49,4 +53,4 @@ const MainInfoSidebar = ({ zaaktype, loading, scrolledIndex }: MainInfoSidebarPr
   );
 };
 
-export default memo(MainInfoSidebar);
+export default memo(ContentSidebar);

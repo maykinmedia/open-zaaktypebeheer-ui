@@ -115,17 +115,17 @@ export type StatusTypeT = {
   zaaktype: string;
 };
 
-export type MainInfoStructure = MainInfoArticleStructure[];
+export type ContentStructure = ContentArticleStructure[];
 
-export type MainInfoArticleStructure = {
+export type ContentArticleStructure = {
   label: string;
   slug: string;
-  fields: MainInfoColumnStructure[];
+  columns: ContentColumnStructure[];
 };
 
-export type MainInfoColumnStructure = {
+export type ContentColumnStructure = {
   label: string;
-  value?: boolean | string[] | string | null | undefined;
+  value: any;
   fullWidth: boolean;
 };
 
@@ -141,30 +141,6 @@ export type SetDataVisualLayout = Dispatch<SetStateAction<DataVisualLayout>>;
 //----------------------//
 //    ComponentProps    //
 //----------------------//
-
-/** Props for Detailpage component  */
-export type DetailpageProps = {
-  zaaktype?: ZaaktypeResolvedT;
-  loading: boolean;
-};
-
-export type MainInfoProps = {
-  zaaktype?: ZaaktypeResolvedT;
-  loading: boolean;
-};
-
-export type MainInfoSidebarProps = MainInfoProps & {
-  scrolledIndex: number;
-};
-
-export interface MainInfoArticleProps extends MainInfoArticleStructure {
-  loading: boolean;
-}
-
-export interface MainInfoColumnProps extends MainInfoColumnStructure {
-  loading: boolean;
-}
-
 /** Props for Search component  */
 export type SearchProps = {
   query: Query;
@@ -256,10 +232,6 @@ export type CreateSingleGridColDefFunction = (
 /**  Create multiple column definitions function  */
 export type CreateGridColDefFunction = (data: ZaaktypeT[] | InformatieObjectT[]) => GridColDef[];
 
-export type GetMainInfoStructureFunction = (zaaktype?: ZaaktypeResolvedT) => MainInfoStructure;
-
-export type GetAvailibleDataFunction = (mainInfoStructure: MainInfoStructure) => boolean[];
-
 //----------------//
 //    Response    //
 //----------------//
@@ -348,17 +320,6 @@ export type TabsProps = {
   tabNames: string[];
   /** Define children must be equal to tabNames length */
   children: ReactNode[];
-};
-
-//////// renderer
-
-export type RendererT = {
-  label?: string;
-  value: any;
-};
-
-export type RendererFunctionT = RendererT & {
-  type: 'url' | 'boolean' | 'string' | 'array';
 };
 
 declare module 'notistack' {

@@ -1,7 +1,11 @@
 import { Typography } from '@mui/material';
-import { RendererT } from '../../../types/types';
 
-const RenderBoolean = ({ value }: RendererT) => {
+interface RenderBooleanProps {
+  label?: string;
+  value: boolean;
+}
+
+const RenderBoolean = ({ value }: RenderBooleanProps) => {
   return <Typography variant="body1">{value ? 'Ja' : 'Nee'}</Typography>;
 };
 

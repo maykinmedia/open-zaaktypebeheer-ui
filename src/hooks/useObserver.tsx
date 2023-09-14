@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 
-// Move types
-type useObserverHookData = { [key: string]: IntersectionObserverEntry };
+/**
+ * UseObserver hook - This hook is used to observe the intersection of elements
+ * @returns an object containing the intersection entry data of the observed elements
+ */
 interface useObserverHook {
-  (
-    ref: React.MutableRefObject<HTMLElement[]>,
-    observerOptions: IntersectionObserverInit
-  ): useObserverHookData;
+  (ref: React.MutableRefObject<HTMLElement[]>, observerOptions: IntersectionObserverInit): {
+    [key: string]: IntersectionObserverEntry;
+  };
 }
 
-const useObserver: useObserverHook = (ref, observerOptions) => {
+const useObserver: useObserverHook = (refs, observerOptions) => {
   const [entryData, setEntryData] = useState<{ [key: string]: IntersectionObserverEntry }>({});
 
   const observerCallback: IntersectionObserverCallback = (entries) => {
@@ -22,12 +23,14 @@ const useObserver: useObserverHook = (ref, observerOptions) => {
   };
 
   useEffect(() => {
+    // Reset entry data if there are new refs
+    setEntryData({});
     const observer = new IntersectionObserver(observerCallback, observerOptions);
-    ref.current.forEach((el: any) => {
+    refs.current.forEach((el: any) => {
       observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [ref]);
+  }, [refs.current.length]);
 
   return entryData;
 };

@@ -8,8 +8,11 @@ export const isEmpty = (value: unknown) => {
 
 export const isBoolean = (value: unknown) => typeof value === 'boolean';
 
+export const isObject = (value: unknown) => typeof value === 'object';
+
 export const isValue = (value: any) => {
   if (Array.isArray(value)) return 'array';
+  if (isObject(value)) return 'object';
   if (isBoolean(value)) return 'boolean';
   if (isLink(value)) return 'url';
   return 'string';

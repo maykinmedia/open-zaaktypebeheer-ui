@@ -1,8 +1,12 @@
-import { RendererT } from '../../../types/types';
 import { isValue } from '../../../utils/is';
-import ValueRenderer from '../valueRenderer';
+import ValueRenderer from './valueRenderer';
 
-const RenderArray = ({ label, value }: RendererT) => {
+interface RenderArrayProps {
+  label?: string;
+  value: any[];
+}
+
+const RenderArray = ({ label, value }: RenderArrayProps) => {
   return value.map((item: any, i: number) => (
     <ValueRenderer key={i} label={label} value={item} type={isValue(item)} />
   ));

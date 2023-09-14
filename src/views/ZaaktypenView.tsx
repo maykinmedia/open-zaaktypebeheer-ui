@@ -5,6 +5,7 @@ import { ZaaktypeResolvedT } from '../types/types';
 import { get } from '../api/api';
 import Detailpage from '../components/Detailpage/Detailpage';
 import { spacings } from '../components/DesignSystem/DesignSystem';
+import BreadCrumbs from '../components/BreadCrumbs/BreadCrumbs';
 
 const ZaaktypeView = () => {
   const params = useParams();
@@ -18,8 +19,8 @@ const ZaaktypeView = () => {
   if (error) return <Alert severity="error">{error.message}</Alert>;
 
   return (
-    <Stack direction={'row'} flexWrap={'wrap'} width={'100%'} spacing={spacings.medium} useFlexGap>
-      {/* Add Breadcrumbs once merged */}
+    <Stack direction={'row'} flexWrap={'wrap'} width={'100%'} spacing={spacings.large} useFlexGap>
+      <BreadCrumbs />
       <Detailpage zaaktype={value?.zaaktype} loading={loading} />
     </Stack>
   );

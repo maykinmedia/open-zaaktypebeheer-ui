@@ -1,18 +1,22 @@
 import { Skeleton, Stack, Typography } from '@mui/material';
 import { decamelizeText, widthText } from '../../utils/text';
 import { dynamicWidth } from '../DesignSystem/DesignSystem';
-import ValueRenderer from '../MainInfo/valueRenderer';
-import { MainInfoColumnProps } from '../../types/types';
 import { isEmpty, isValue } from '../../utils/is';
+import ValueRenderer from './renderers/valueRenderer';
+import { ContentColumnStructure } from '../../types/types';
 
-const MainInfoColumn = (props: MainInfoColumnProps) => {
+interface ContentColumnProps extends ContentColumnStructure {
+  loading: boolean;
+}
+
+const ContentColumn = (props: ContentColumnProps) => {
   const { value, loading, fullWidth } = props;
   const label = decamelizeText(props.label);
   if (!loading && isEmpty(value)) return;
 
   return (
-    <Stack spacing={'4px'} width={'100%'} maxWidth={fullWidth ? '100%' : dynamicWidth(2, 32)}>
-      <Typography variant="h3">
+    <Stack width={'100%'} maxWidth={fullWidth ? '100%' : dynamicWidth(2, 32)}>
+      <Typography variant="h3" gutterBottom>
         {loading ? <Skeleton width={widthText(label, 5)} /> : label}
       </Typography>
       {loading ? (
@@ -27,4 +31,4 @@ const MainInfoColumn = (props: MainInfoColumnProps) => {
   );
 };
 
-export default MainInfoColumn;
+export default ContentColumn;

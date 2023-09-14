@@ -2,25 +2,27 @@ import { Box, Skeleton, Stack, Typography } from '@mui/material';
 import { spacings } from '../DesignSystem/DesignSystem';
 import { widthText } from '../../utils/text';
 import { memo } from 'react';
-import MainInfoColumn from './Column';
-import { MainInfoArticleProps } from '../../types/types';
+import ContentColumn from './Column';
+import { ContentArticleStructure } from '../../types/types';
 
-const MainInfoArticle = (props: MainInfoArticleProps) => {
-  const { label, fields, loading } = props;
+interface ContentArticleProps extends ContentArticleStructure {
+  loading: boolean;
+}
 
+const ContentArticle = ({ label, columns, loading }: ContentArticleProps) => {
   return (
     <Box component={'article'} display={'flex'} flexDirection={'column'} gap={spacings.large}>
       <Typography variant="h2">
-        {!loading ? label : <Skeleton width={widthText(label, 10)} />}
+        {loading ? <Skeleton width={widthText(label, 10)} /> : label}
       </Typography>
 
       <Stack flexWrap={'wrap'} spacing={spacings.large} useFlexGap direction={'row'}>
-        {fields.map((field, i) => (
-          <MainInfoColumn key={i} loading={loading} {...field} />
+        {columns?.map((column, i) => (
+          <ContentColumn key={i} loading={loading} {...column} />
         ))}
       </Stack>
     </Box>
   );
 };
 
-export default memo(MainInfoArticle);
+export default memo(ContentArticle);
