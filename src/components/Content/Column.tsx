@@ -2,8 +2,8 @@ import { Skeleton, Stack, Typography } from '@mui/material';
 import { decamelizeText, widthText } from '../../utils/text';
 import { dynamicWidth } from '../DesignSystem/DesignSystem';
 import { isEmpty, isValue } from '../../utils/is';
-import ValueRenderer from './renderers/valueRenderer';
 import { ContentColumnStructure } from '../../types/types';
+import ValueRenderer from './ValueRenderer';
 
 interface ContentColumnProps extends ContentColumnStructure {
   loading: boolean;
