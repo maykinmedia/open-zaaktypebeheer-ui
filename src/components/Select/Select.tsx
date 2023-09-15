@@ -19,16 +19,19 @@ interface SelectProps extends MuiSelectProps {
   label: string;
   /**
    * All option label for the select
-   * @default 'Alles'
+   * @default { label: 'Alles', value: 'all'}
    */
-  defaultValue?: string;
+  defaultValue?: {
+    label: string;
+    value: string;
+  };
   /**
    * Selected value
    */
   selectedValue: {
     label: string;
     value: string;
-  };
+  } | null;
   /**
    * Structure of select data
    */
@@ -59,7 +62,10 @@ interface SelectProps extends MuiSelectProps {
 
 const Select = ({
   label = 'Selecteer optie',
-  defaultValue = 'Alles',
+  defaultValue = {
+    label: 'Alles',
+    value: 'all',
+  },
   optionSort = 'asc',
   selectedValue,
   structure,
@@ -76,7 +82,7 @@ const Select = ({
         {...rest}
         label={label}
         IconComponent={ExpandMore}
-        value={selectedValue.value}
+        value={selectedValue !== null ? selectedValue.value : ''}
         autoWidth
         sx={{
           ...outlinedInputStyling,
@@ -94,24 +100,38 @@ const Select = ({
           },
         }}
       >
-        <MenuItem value={'all'}>{defaultValue}</MenuItem>
-        <Divider />
-        {!structure.data ? (
-          <MenuItem value={selectedValue.value}>{selectedValue.label}</MenuItem>
-        ) : (
-          arrayOfObjectsSort(structure?.data, structure.labelKey, optionSort)?.map(
-            (item: any, i: any) => {
-              return (
-                <MenuItem key={i} value={item[structure.valueKey]}>
-                  {item[structure.labelKey]}
-                </MenuItem>
-              );
-            }
-          )
-        )}
+        <MenuItem value={defaultValue.value}>{defaultValue.label}</MenuItem>
+        {structure.data && <Divider />}
+        {!structure.data
+          ? selectedValue !== null &&
+            selectedValue.value !== 'all' && (
+              <MenuItem value={selectedValue.value}>{selectedValue.label}</MenuItem>
+            )
+          : arrayOfObjectsSort(structure?.data, structure.labelKey, optionSort)?.map(
+              (item: any, i: any) => {
+                return (
+                  <MenuItem key={i} value={item[structure.valueKey]}>
+                    {item[structure.labelKey]}
+                  </MenuItem>
+                );
+              }
+            )}
       </MuiSelect>
     </FormControl>
   );
 };
 
 export default Select;
+
+//   ? selectedValue.value !== 'all' && (
+//       <MenuItem value={selectedValue.value}>{selectedValue.label}</MenuItem>
+//     )
+//   : arrayOfObjectsSort(structure?.data, structure.labelKey, optionSort)?.map(
+//       (item: any, i: any) => {
+//         return (
+//           <MenuItem key={i} value={item[structure.valueKey]}>
+//             {item[structure.labelKey]}
+//           </MenuItem>
+//         );
+//       }
+//     )}

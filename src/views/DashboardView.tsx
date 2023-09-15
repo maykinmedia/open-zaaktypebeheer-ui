@@ -1,4 +1,4 @@
-import { Alert, Box, Skeleton, Stack, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, Button, Stack, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import Search from '../components/Search/Search';
 import Card from '../components/Card/Card';
@@ -24,10 +24,7 @@ import { uuidExtract } from '../utils/extract';
 const columnNames: ColumnTypes[] = ['link', 'title', 'default'];
 
 const DashboardView = () => {
-  const currentCatalogi = getLocalStorage('catalogus')
-    ? getLocalStorage('catalogus')
-    : { value: 'all', label: 'Alle catalogussen' };
-
+  const currentCatalogi = getLocalStorage('catalogus');
   const [catalogus, setCatalogus] = useState<SavedCatalogusT>(currentCatalogi!);
   const [catalogussen, setCatalogussen] = useState<CatalogusT[]>(undefined!);
   const [query, setQuery] = useState<Query>('');
@@ -35,8 +32,9 @@ const DashboardView = () => {
 
   const { loading, value, error } = useAsync(async () => {
     let endpoint = 'catalogi/zaaktypen/?status=alles';
-    if (catalogus.value !== 'all') endpoint += `&catalogus=${catalogus.value}`;
     if (!catalogussen) setCatalogussen(await get('catalogi/catalogussen/'));
+    if (!catalogus) return { zaaktypen: undefined, catalogussen };
+    if (catalogus.value !== 'all') endpoint += `&catalogus=${catalogus.value}`;
     const zaaktypen: ZaaktypeT[] = await get(endpoint);
 
     return { zaaktypen, catalogussen };
@@ -45,6 +43,8 @@ const DashboardView = () => {
   // Used to show the initial loading skeleton
   const zaaktypen = value?.zaaktypen
     ? attributeOnQueryFilter(query, value?.zaaktypen!, 'omschrijving')
+    : catalogussen
+    ? []
     : new Array(10).fill({});
 
   const initialData = useMemo(
@@ -76,9 +76,7 @@ const DashboardView = () => {
   return (
     <Stack component={'article'} spacing={spacings.large} useFlexGap>
       <Box width={'100%'}>
-        <Typography variant="h1">
-          {loading && !error ? <Skeleton width={160} /> : 'Dashboard'}
-        </Typography>
+        <Typography variant="h1">Dashboard</Typography>
       </Box>
       <Stack
         width={'100%'}
@@ -114,23 +112,34 @@ const DashboardView = () => {
             data: catalogussen,
           }}
           label={'Selecteer catalogus'}
-          defaultValue={'Alle catalogussen'}
+          defaultValue={{ label: 'Alle catalogussen', value: 'all' }}
           optionSort={'asc'}
         />
 
         <Box width={'100%'}>
           <Typography variant={'h2'}>
-            {loading && !error ? (
-              <Skeleton width={130} />
-            ) : (
-              `${zaaktypen && !error ? zaaktypen.length : 0} Zaaktypen`
-            )}
+            Zaaktypen {!error && !loading && catalogussen && `(${zaaktypen.length})`}
           </Typography>
         </Box>
       </Stack>
       {error ? (
-        <Alert severity="error">{error.message}</Alert>
-      ) : (
+        <Alert
+          severity="error"
+          action={
+            <Button
+              size="small"
+              color="error"
+              onClick={() => window.location.reload()}
+              sx={{ alignSelf: 'flex-end' }}
+            >
+              Herlaad pagina
+            </Button>
+          }
+        >
+          <AlertTitle>{error.message}</AlertTitle>
+          Er is een fout opgetreden bij het ophalen van de zaaktypen. Probeer het opnieuw.
+        </Alert>
+      ) : catalogus ? (
         <>
           {dataVisualLayout === 'datagrid' && (
             <DataGrid height={610} {...gridHandlers} {...gridData} loading={loading} />
@@ -149,6 +158,8 @@ const DashboardView = () => {
             </Stack>
           )}
         </>
+      ) : (
+        <Alert severity="info">Selecteer eerst een catalogus</Alert>
       )}
     </Stack>
   );
