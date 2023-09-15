@@ -1,11 +1,11 @@
-import { ContentStructure, ZaaktypeResolvedT } from '../../types/types';
-import { uuidExtract } from '../../utils/extract';
+import { ContentStructure, ZaaktypeResolvedT } from '../types/types';
+import { uuidExtract } from '../utils/extract';
 
 interface getContentStructure<T> {
   (data?: T): ContentStructure;
 }
 
-export const algmeenContentStructure: getContentStructure<ZaaktypeResolvedT> = (data) => [
+export const dataAlgemeenStructure: getContentStructure<ZaaktypeResolvedT> = (data) => [
   {
     label: 'Algemeen',
     slug: 'algemeen',

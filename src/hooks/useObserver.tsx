@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 
 /**
- * UseObserver hook - This hook is used to observe the intersection of elements
+ * UseObserver hook - This hook is used to observe the intersection of elements inside the viewport
+ * An object is returned containing the intersection entry data of the observed elements
+ * @param ref - A ref containing the elements to observe
+ * @param observerOptions - Options for the IntersectionObserver
  * @returns an object containing the intersection entry data of the observed elements
+ * @use useObserver(ref, observerOptions)
  */
 interface useObserverHook {
   (ref: React.MutableRefObject<HTMLElement[]>, observerOptions: IntersectionObserverInit): {

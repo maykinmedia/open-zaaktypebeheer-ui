@@ -9,8 +9,6 @@ import {
 } from '../DesignSystem/DesignSystem';
 import useObserver from '../../hooks/useObserver';
 import useAvailableHeight from '../../hooks/useAvailibleHeight';
-// import { scrollMarginTop } from '../MainInfo/utils';
-
 import ContentArticle from './Article';
 import ContentSidebar from './Siderbar';
 import { ContentStructure } from '../../types/types';
