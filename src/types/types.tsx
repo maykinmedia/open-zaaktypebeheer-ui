@@ -97,10 +97,10 @@ export type InformatieObjectT = {
 };
 
 export type ZaaktypeInformatieRelatieT = {
-  informatieobjecttype: InformatieObjectT;
-  richting: 'inkomend' | 'uitgaand' | 'intern';
   url: string;
   zaaktype: string;
+  informatieobjecttype: InformatieObjectT;
+  richting: 'inkomend' | 'uitgaand' | 'intern';
   statustype?: string | null;
   volgnummer: number;
 };
@@ -115,6 +115,20 @@ export type StatusTypeT = {
   zaaktype: string;
 };
 
+export type ContentStructure = ContentArticleStructure[];
+
+export type ContentArticleStructure = {
+  label: string;
+  slug: string;
+  columns: ContentColumnStructure[];
+};
+
+export type ContentColumnStructure = {
+  label: string;
+  value: any;
+  fullWidth: boolean;
+};
+
 //-----------------------//
 //    Use-state Types    //
 //-----------------------//
@@ -127,13 +141,6 @@ export type SetDataVisualLayout = Dispatch<SetStateAction<DataVisualLayout>>;
 //----------------------//
 //    ComponentProps    //
 //----------------------//
-
-/** Props for Detailpage component  */
-export type DetailpageProps = {
-  zaaktype?: ZaaktypeResolvedT;
-  loading: boolean;
-};
-
 /** Props for Search component  */
 export type SearchProps = {
   query: Query;
@@ -313,17 +320,6 @@ export type TabsProps = {
   tabNames: string[];
   /** Define children must be equal to tabNames length */
   children: ReactNode[];
-};
-
-//////// renderer
-
-export type RendererT = {
-  label?: string;
-  value: any;
-};
-
-export type RendererFunctionT = RendererT & {
-  type: 'url' | 'boolean' | 'string' | 'array';
 };
 
 declare module 'notistack' {
