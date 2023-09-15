@@ -3,7 +3,6 @@
  * They might need to be updated following the zaaktypebeheer-api.
  */
 import {
-  DataGridProps as MuiDataGridProps,
   GridColDef,
   GridRowId,
   GridColumnVisibilityModel,
