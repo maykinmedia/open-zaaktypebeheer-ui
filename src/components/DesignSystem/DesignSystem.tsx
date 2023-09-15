@@ -53,25 +53,3 @@ export const dynamicWidth = (columnCount: number, gapSize: number) => {
 export const headerHeight = 84;
 export const tabsHeight = 48;
 export const currentMargin = 48;
-
-export const stickyHeight = (type: string) => {
-  return {
-    top:
-      headerHeight +
-      (type !== 'tabs' ? tabsHeight : 0) +
-      (type !== 'tabs' && type !== 'sidebar' ? 40 : 0),
-    height: 'fit-content',
-    position: 'sticky',
-  };
-};
-
-export const componentSize = {
-  header: {
-    default: 64,
-    laptop: 84,
-  },
-  tabs: {
-    default: 48,
-    laptop: 48,
-  },
-};

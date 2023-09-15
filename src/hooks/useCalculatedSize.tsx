@@ -1,5 +1,16 @@
 import { useMediaQuery } from '@mui/material';
-import { componentSize, mediaQueries } from '../components/DesignSystem/DesignSystem';
+import { mediaQueries } from '../components/DesignSystem/DesignSystem';
+
+export const componentSize = {
+  header: {
+    default: 64,
+    laptop: 84,
+  },
+  tabs: {
+    default: 48,
+    laptop: 48,
+  },
+};
 
 const useCalculatedSize = (component: keyof typeof componentSize) => {
   const smallerThanLaptop = useMediaQuery(mediaQueries.laptop);

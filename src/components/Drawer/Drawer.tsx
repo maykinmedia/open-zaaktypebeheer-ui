@@ -4,10 +4,12 @@ import Logo from '../Logo/Logo';
 import List from '../List/List';
 import { ToggleDrawerFunction } from '../../types/types';
 import { Link } from 'react-router-dom';
+import useCalculatedSize from '../../hooks/useCalculatedSize';
+import { SiteTree } from '../../hooks/useSiteTree';
 
 const DrawerHeader = styled('section')((props) => {
-  // @ts-expect-error headerheight is not defined in default props but is defined in props
-  const { theme, headerHeight } = props;
+  const { theme } = props;
+  const headerHeight = useCalculatedSize('header');
   return {
     display: 'flex',
     alignItems: 'center',
@@ -21,15 +23,10 @@ const DrawerHeader = styled('section')((props) => {
 export interface DrawerT {
   open: boolean;
   toggleDrawer: ToggleDrawerFunction;
-  siteTree: {
-    label: string;
-    to: string;
-    onClick?: () => void;
-  }[];
-  headerHeight: number;
+  siteTree: SiteTree[];
 }
 
-const Drawer = ({ open, toggleDrawer, siteTree, headerHeight }: DrawerT) => {
+const Drawer = ({ open, toggleDrawer, siteTree }: DrawerT) => {
   return (
     <SwipeableDrawer
       anchor={'right'}
@@ -43,8 +40,7 @@ const Drawer = ({ open, toggleDrawer, siteTree, headerHeight }: DrawerT) => {
         onKeyDown={toggleDrawer(false)}
         role="presentation"
       >
-        {/* @ts-expect-error headerheight is not defined in default props but is defined in props */}
-        <DrawerHeader headerHeight={headerHeight}>
+        <DrawerHeader>
           <IconButton onClick={toggleDrawer(false)}>
             <ChevronRightIcon />
           </IconButton>

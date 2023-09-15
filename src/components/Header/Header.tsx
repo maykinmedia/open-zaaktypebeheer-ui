@@ -3,13 +3,10 @@ import Logo from '../Logo/Logo';
 import Navigation from '../Navigation/Navigation';
 import { spacings } from '../DesignSystem/DesignSystem';
 import { Link as RouterLink } from 'react-router-dom';
+import { SiteTree } from '../../hooks/useSiteTree';
 
 interface HeaderProps {
-  siteTree: {
-    label: string;
-    to: string;
-    onClick?: () => void;
-  }[];
+  siteTree: SiteTree[];
   headerHeight: number;
 }
 
@@ -31,7 +28,7 @@ export default function Header({ siteTree, headerHeight }: HeaderProps) {
           <Logo height={'100%'} />
         </Link>
         <Box flexGrow={1} />
-        <Navigation headerHeight={headerHeight} siteTree={siteTree} />
+        <Navigation siteTree={siteTree} />
       </Toolbar>
     </AppBar>
   );

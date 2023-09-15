@@ -5,17 +5,13 @@ import { Link as RouterLink } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ToggleDrawerFunction } from '../../types/types';
 import { spacings } from '../DesignSystem/DesignSystem';
+import { SiteTree } from '../../hooks/useSiteTree';
 
 interface NavigationProps {
-  siteTree: {
-    label: string;
-    to: string;
-    onClick?: () => void;
-  }[];
-  headerHeight: number;
+  siteTree: SiteTree[];
 }
 
-const Navigation = ({ siteTree, headerHeight }: NavigationProps) => {
+const Navigation = ({ siteTree }: NavigationProps) => {
   const [open, setOpen] = useState(false);
   const mobileDevice = useMediaQuery('(max-width:768px)');
 
@@ -32,12 +28,7 @@ const Navigation = ({ siteTree, headerHeight }: NavigationProps) => {
         <IconButton onClick={toggleDrawer(true)}>
           <MenuIcon />
         </IconButton>
-        <Drawer
-          headerHeight={headerHeight}
-          siteTree={siteTree}
-          open={open}
-          toggleDrawer={toggleDrawer}
-        />
+        <Drawer siteTree={siteTree} open={open} toggleDrawer={toggleDrawer} />
       </>
     );
 

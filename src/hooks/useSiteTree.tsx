@@ -1,5 +1,15 @@
 import { useAuth } from '../components/Auth/Auth';
 
+export interface SiteTree {
+  label: string;
+  to: string;
+  onClick?: () => void;
+}
+
+interface useSiteTree {
+  (): SiteTree[];
+}
+
 const useSiteTree = () => {
   const auth = useAuth();
   return [
