@@ -160,23 +160,6 @@ export type CardProps = {
   loading?: boolean;
 };
 
-/**- BulkEditor -**/
-/** Props for BulkEditor component */
-export interface BulkEditorProps {
-  loading: boolean;
-  zaaktype: ZaaktypeResolvedT;
-  informatieobjecttypen: InformatieObjectT[];
-  apiRef?: any;
-}
-
-/**- DataGrid -**/
-/** Props for DataGrid component  */
-export type DataGridProps = MuiDataGridProps & {
-  height?: number;
-  loading?: boolean;
-  showQuickFilter?: boolean;
-};
-
 export interface GridActionHandlers {
   handleEditClick: (id: GridRowId) => () => void;
   handleSaveClick: (id: GridRowId) => () => void;

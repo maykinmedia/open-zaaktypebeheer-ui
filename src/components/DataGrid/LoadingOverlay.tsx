@@ -19,20 +19,22 @@ const SkeletonCell = styled(Box)(({ theme }) => ({
  */
 function DataGridLoadingOverlay() {
   const apiRef = useGridApiContext();
+  const dimensions = apiRef.current?.getRootDimensions();
+  const viewportHeight = dimensions?.viewportInnerSize.height ?? 0;
 
   // @ts-expect-error; Function signature expects to be called with parameters, but the implementation suggests otherwise
   const rowHeight = apiRef.current.unstable_getRowHeight();
   const columns = apiRef.current.getVisibleColumns();
+  const skeletonRowsCount = Math.ceil(viewportHeight / rowHeight);
 
   const skeletonCells = useMemo(() => {
     const random = randomNumberBetween(123456, 25, 80);
     const array = [];
 
-    for (let i = 0; i < 10; i += 1) {
+    for (let i = 0; i < skeletonRowsCount - 1; i += 1) {
       for (const column of columns) {
         const width = Math.round(random());
-        if (column.field === 'link') array.push(<SkeletonCell key={`empty-${i}-link`} />);
-        else if (column.field === '__check__')
+        if (column.field === '__check__' || column.field === 'link')
           array.push(
             <SkeletonCell key={`column-${i}-${column.field}`} sx={{ justifyContent: column.align }}>
               <Skeleton sx={{ mx: 1 }} variant="rounded" width={`40%`} />

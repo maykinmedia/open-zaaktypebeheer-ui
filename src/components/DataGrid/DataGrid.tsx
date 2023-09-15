@@ -1,17 +1,22 @@
-import { DataGrid as MuiDataGrid, nlNL } from '@mui/x-data-grid';
+import { DataGrid as MuiDataGrid, DataGridProps as MuiDataGridProps, nlNL } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
-import { DataGridProps } from '../../types/types';
 import DataGridToolbar from './Toolbar';
 import DataGridLoadingOverlay from './LoadingOverlay';
 import { useState } from 'react';
 
-function DataGrid({
+export type DataGridProps = MuiDataGridProps & {
+  height?: number;
+  loading?: boolean;
+  showQuickFilter?: boolean;
+};
+
+const DataGrid = ({
   loading,
   height,
   showQuickFilter,
   columnVisibilityModel,
   ...rest
-}: DataGridProps) {
+}: DataGridProps) => {
   const [visibilityModel, setVisibilityModel] = useState(columnVisibilityModel);
   return (
     <Box
@@ -22,8 +27,14 @@ function DataGrid({
       }}
     >
       <MuiDataGrid
+        // Default props
         {...rest}
-        rowModesModel={rest.rowModesModel}
+        // Data
+        rows={loading ? [] : rest.rows} // Disable rows if loading needed to make sure the loading overlay is the only thing shown
+        // Buffer columns
+        columnBuffer={7}
+        columnThreshold={7}
+        // Components / slots
         slots={{
           loadingOverlay: DataGridLoadingOverlay,
           toolbar: DataGridToolbar,
@@ -33,8 +44,7 @@ function DataGrid({
             showQuickFilter: showQuickFilter,
           },
         }}
-        columnBuffer={2}
-        columnThreshold={2}
+        // State / settings
         loading={loading}
         localeText={nlNL.components.MuiDataGrid.defaultProps.localeText}
         disableColumnMenu
@@ -47,6 +57,6 @@ function DataGrid({
       />
     </Box>
   );
-}
+};
 
 export default DataGrid;

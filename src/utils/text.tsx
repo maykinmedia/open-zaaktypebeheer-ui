@@ -20,6 +20,13 @@ export const decamelizeText = (string: string, noUcFirst?: true, separator?: str
   return decamelize(string, { separator: separator });
 };
 
-export const widthText = (string: string, xWidth: number) => {
-  return 30 + Array.from(string).length * xWidth;
+/**
+ * Calculate the width of a string, based on the number of characters and the ~width of a character.
+ * @param string The string to calculate the width of
+ * @param xWidth The width of a character
+ * @param baseSize The base size to calculate the string from
+ * @returns a number representing the width of the string
+ */
+export const widthText = (string: string, xWidth: number, baseSize: number = 30) => {
+  return baseSize + Array.from(string).length * xWidth;
 };

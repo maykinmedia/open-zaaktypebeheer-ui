@@ -1,14 +1,19 @@
 import { Alert, Box, Button, Skeleton, Stack, Typography } from '@mui/material';
 import { useParams, useNavigate } from 'react-router';
 import { useAsync } from 'react-use';
-import { InformatieObjectT, ZaaktypeResolvedT } from '../types/types';
+import { ColumnTypes, InformatieObjectT, ZaaktypeResolvedT } from '../types/types';
 import { spacings } from '../components/DesignSystem/DesignSystem';
 import { get, post } from '../api/api';
-import BulkEditor from '../components/BulkEditor/BulkEditor';
 import { useGridApiRef } from '@mui/x-data-grid';
 import { closeSnackbar, useSnackbar } from 'notistack';
 import { useState } from 'react';
 import { Close } from '@mui/icons-material';
+import DataGrid from '../components/DataGrid/DataGrid';
+import { getInitialData } from '../components/DataGrid/utils';
+import useDataGrid from '../hooks/useDatagrid';
+import BreadCrumbs from '../components/BreadCrumbs/BreadCrumbs';
+
+const columnNames: ColumnTypes[] = ['checkbox', 'edit', 'title', 'bulkEditor', 'default'];
 
 const ZaaktypeEditView = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -31,6 +36,10 @@ const ZaaktypeEditView = () => {
 
   // Should be improved
   if (error) return <Alert severity="error">{error.message}</Alert>;
+
+  // Get grid data
+  const initialData = getInitialData(value?.zaaktype, value?.informatieobjecttypen);
+  const { gridHandlers, ...gridData } = useDataGrid(initialData, loading, columnNames);
 
   const handleSave = async () => {
     const selection = apiRef.current.state.rowSelection;
@@ -128,6 +137,7 @@ const ZaaktypeEditView = () => {
 
   return (
     <Stack direction={'row'} flexWrap={'wrap'} width={'100%'} spacing={spacings.xlarge} useFlexGap>
+      <BreadCrumbs />
       <Stack
         direction={'row'}
         justifyContent={'space-between'}
@@ -163,11 +173,23 @@ const ZaaktypeEditView = () => {
               'Hier kunt u de gekoppelde informatieobjecttypen wijzigen.'
             )}
           </Typography>
-          <BulkEditor
+          <DataGrid
+            // ref
             apiRef={apiRef}
+            // layout
+            height={650}
+            // state
             loading={loadingState}
-            zaaktype={value?.zaaktype!}
-            informatieobjecttypen={value?.informatieobjecttypen!}
+            // data
+            {...gridData}
+            // interactive settings
+            isCellEditable={(params) => !!params.row.volgnummer}
+            disableRowSelectionOnClick
+            editMode="row"
+            checkboxSelection
+            showQuickFilter
+            // interactive handlers
+            {...gridHandlers}
           />
         </Stack>
       </Stack>
