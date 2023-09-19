@@ -7,12 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import logo from '/logo.svg';
 import PasswordField from '../components/Fields/Password';
 import { APIError, BadRequest } from '../errors/errors';
+import { useConfig } from '../components/Config/Config.tsx';
 
 export default function LoginView() {
   const [error, setError] = useState<APIError>(undefined!);
-  // TODO use context when it is merged
-  // const config = useConfig();
-  const config = { oidcEnabled: true, oidcLoginUrl: 'http://tralala.lala' };
+  const config = useConfig();
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -58,9 +57,7 @@ export default function LoginView() {
         }}
       >
         <img src={logo} alt="logo" height={50} />
-        <Typography variant="h4" component={'h1'}>
-          Login
-        </Typography>
+        <Typography variant="h1">Login</Typography>
         {error && <p>{error.message}</p>}
         <TextField
           variant="filled"
@@ -83,7 +80,7 @@ export default function LoginView() {
           Login
         </Button>
         {config.oidcEnabled && (
-          <Link href={getOidcLoginUrl()} sx={{ 'text-align': 'center' }} underline="hover">
+          <Link href={getOidcLoginUrl()} textAlign="left" variant="body2" underline="hover">
             Inloggen met organisatie account
           </Link>
         )}
