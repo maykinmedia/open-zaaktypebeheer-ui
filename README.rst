@@ -17,6 +17,12 @@ Introduction
 The Open ZaakType Beheer project aims to change zaaktype management with a fancy interface.
 
 
+Documentation
+=============
+
+See ``INSTALL.rst`` for installation and configuration instructions.
+
+
 References
 ==========
 
