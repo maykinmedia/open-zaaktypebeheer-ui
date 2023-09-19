@@ -1,5 +1,4 @@
 import {
-  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -8,7 +7,7 @@ import {
 } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
 import { outlinedInputStyling } from '../DesignSystem/DesignSystem';
-import { arrayOfObjectsSort } from '../../utils/sort';
+import { useMemo } from 'react';
 
 /** Props for the select component */
 interface SelectProps extends MuiSelectProps {
@@ -28,21 +27,11 @@ interface SelectProps extends MuiSelectProps {
   /**
    * Selected value
    */
-  selectedValue: {
-    label: string;
-    value: string;
-  } | null;
+  selectedValue: string;
   /**
-   * Structure of select data
+   * The data
    */
-  structure: {
-    /** Array of objects */
-    data: any[];
-    /** Key to index label on data object */
-    labelKey: string;
-    /** Key to index value on data object */
-    valueKey: string;
-  };
+  data: Array<Array<string>>;
   /**
    * Maximum height of the select menu
    * @default 340
@@ -62,17 +51,22 @@ interface SelectProps extends MuiSelectProps {
 
 const Select = ({
   label = 'Selecteer optie',
-  defaultValue = {
-    label: 'Alles',
-    value: 'all',
-  },
   optionSort = 'asc',
   selectedValue,
-  structure,
+  data,
   maxHeight = 340,
   maxWidth = 320,
   ...rest
 }: SelectProps) => {
+  const sortedData = useMemo(
+    () =>
+      data.sort(function (optionA, optionB) {
+        return optionA[1].localeCompare(optionB[1]);
+      }),
+    [data]
+  );
+  const options = [['all', 'Alle catalogi'], ...sortedData];
+
   return (
     <FormControl sx={{ minWidth: maxWidth, ...rest.sx }}>
       <InputLabel htmlFor="search" aria-label={label}>
@@ -82,7 +76,7 @@ const Select = ({
         {...rest}
         label={label}
         IconComponent={ExpandMore}
-        value={selectedValue !== null ? selectedValue.value : ''}
+        value={selectedValue || ''}
         autoWidth
         sx={{
           ...outlinedInputStyling,
@@ -100,38 +94,14 @@ const Select = ({
           },
         }}
       >
-        <MenuItem value={defaultValue.value}>{defaultValue.label}</MenuItem>
-        {structure.data && <Divider />}
-        {!structure.data
-          ? selectedValue !== null &&
-            selectedValue.value !== 'all' && (
-              <MenuItem value={selectedValue.value}>{selectedValue.label}</MenuItem>
-            )
-          : arrayOfObjectsSort(structure?.data, structure.labelKey, optionSort)?.map(
-              (item: any, i: any) => {
-                return (
-                  <MenuItem key={i} value={item[structure.valueKey]}>
-                    {item[structure.labelKey]}
-                  </MenuItem>
-                );
-              }
-            )}
+        {options.map(([optionValue, optionLabel]) => (
+          <MenuItem key={optionValue} value={optionValue}>
+            {optionLabel}
+          </MenuItem>
+        ))}
       </MuiSelect>
     </FormControl>
   );
 };
 
 export default Select;
-
-//   ? selectedValue.value !== 'all' && (
-//       <MenuItem value={selectedValue.value}>{selectedValue.label}</MenuItem>
-//     )
-//   : arrayOfObjectsSort(structure?.data, structure.labelKey, optionSort)?.map(
-//       (item: any, i: any) => {
-//         return (
-//           <MenuItem key={i} value={item[structure.valueKey]}>
-//             {item[structure.labelKey]}
-//           </MenuItem>
-//         );
-//       }
-//     )}
