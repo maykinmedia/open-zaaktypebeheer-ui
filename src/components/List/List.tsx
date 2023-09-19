@@ -5,15 +5,26 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import { DrawerListT } from '../../types/types';
+import { Link } from 'react-router-dom';
 
-const List = ({ siteTreeOptions }: DrawerListT) => (
+interface ListProps {
+  options: ListOption[];
+}
+
+interface ListOption {
+  label: string;
+  to: string;
+  onClick?: () => void;
+  Icon?: JSX.Element;
+}
+
+const List = ({ options }: ListProps) => (
   <ListMaterial>
-    {siteTreeOptions.map((option) => (
-      <ListItem key={option.label} onClick={option.onClick} disablePadding>
-        <ListItemButton>
-          {option.Icon && <ListItemIcon>{option.Icon}</ListItemIcon>}
-          <ListItemText primary={option.label} />
+    {options.map(({ label, to, Icon, onClick }) => (
+      <ListItem key={label} disablePadding>
+        <ListItemButton component={Link} to={to} onClick={onClick}>
+          {Icon && <ListItemIcon>{Icon}</ListItemIcon>}
+          <ListItemText primary={label} />
         </ListItemButton>
       </ListItem>
     ))}
