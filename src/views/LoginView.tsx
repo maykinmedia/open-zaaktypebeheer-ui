@@ -1,16 +1,24 @@
 import { useState } from 'react';
 import { Login } from '@mui/icons-material/';
 import { Box, Button, Paper, TextField, Typography } from '@mui/material';
+import Link from '@mui/material/Link';
 import { useAuth } from '../components/Auth/Auth';
 import { useNavigate } from 'react-router-dom';
 import logo from '/logo.svg';
 import PasswordField from '../components/Fields/Password';
 import { APIError, BadRequest } from '../errors/errors';
+import { useConfig } from '../components/Config/Config.tsx';
 
 export default function LoginView() {
   const [error, setError] = useState<APIError>(undefined!);
+  const config = useConfig();
   const auth = useAuth();
   const navigate = useNavigate();
+
+  const getOidcLoginUrl = () => {
+    const nextUrl = new URL('/', window.location.href);
+    return config.oidcLoginUrl + '?next=' + nextUrl.href;
+  };
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,9 +57,7 @@ export default function LoginView() {
         }}
       >
         <img src={logo} alt="logo" height={50} />
-        <Typography variant="h4" component={'h1'}>
-          Login
-        </Typography>
+        <Typography variant="h1">Login</Typography>
         {error && <p>{error.message}</p>}
         <TextField
           variant="filled"
@@ -73,6 +79,11 @@ export default function LoginView() {
         >
           Login
         </Button>
+        {config.oidcEnabled && (
+          <Link href={getOidcLoginUrl()} textAlign="left" variant="body2" underline="hover">
+            Inloggen met organisatie account
+          </Link>
+        )}
       </Paper>
     </Box>
   );

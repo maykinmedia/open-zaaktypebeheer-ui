@@ -9,6 +9,7 @@ export interface ConfigContextType {
   oidcEnabled?: boolean;
   themeClassNames?: '';
   themeStyleSheet?: any;
+  oidcLoginUrl?: string;
 }
 
 const ConfigContext = React.createContext<ConfigContextType>(null!);
