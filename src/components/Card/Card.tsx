@@ -4,19 +4,14 @@ import { CardActionArea, useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { mediaQueries } from '../DesignSystem/DesignSystem';
 import { CardProps } from '../../types/types';
-import { uuidExtract } from '../../utils/extract';
 
-export default function Card({ zaaktype, loading }: CardProps) {
+export default function Card({ loading, title = '', description = '', detailUrl = '' }: CardProps) {
   const mobileScreen = useMediaQuery(mediaQueries.mobile);
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/zaaktypen/' + uuidExtract(zaaktype.url));
+    detailUrl && navigate(detailUrl);
   };
-
-  const count = zaaktype.informatieobjecttypen ? zaaktype.informatieobjecttypen?.length : 0;
-  const cardCountText =
-    count === 1 ? `${count} informatieobjecttype` : `${count} informatieobjecttypen`;
 
   return (
     <CardComponent
@@ -33,10 +28,10 @@ export default function Card({ zaaktype, loading }: CardProps) {
       <CardActionArea onClick={handleClick} sx={{ borderRadius: '0' }}>
         <CardContent component={'article'}>
           <Typography gutterBottom variant="body1" component="h3" noWrap>
-            {loading ? <Skeleton variant="text" /> : zaaktype.omschrijving}
+            {loading ? <Skeleton variant="text" /> : title}
           </Typography>
           <Typography variant="body2">
-            {loading ? <Skeleton variant="text" width={140} /> : cardCountText}
+            {loading ? <Skeleton variant="text" width={140} /> : description}
           </Typography>
         </CardContent>
       </CardActionArea>

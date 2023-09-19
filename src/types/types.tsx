@@ -129,6 +129,21 @@ export type ContentColumnStructure = {
   fullWidth: boolean;
 };
 
+export type CatalogusT = {
+  url: string;
+  domein: string;
+  rsin: string;
+  contactpersoonBeheerNaam: string;
+  contactpersoonBeheerTelefoonnummer: string;
+  contactpersoonBeheerEmailadres: string;
+  concept: boolean;
+  zaaktypen: string[];
+  besluittypen: string[];
+  informatieobjecttypen: string[];
+};
+
+export type SavedCatalogusT = string;
+
 //-----------------------//
 //    Use-state Types    //
 //-----------------------//
@@ -149,6 +164,17 @@ export type SearchProps = {
   fullWidth?: boolean;
 };
 
+export type ErrorAlertProps = {
+  title: string;
+  message: string;
+};
+
+export type GridAndStackProps = {
+  loading: boolean;
+  layout: string;
+  data: any[];
+};
+
 /** Props for Breadcrumbs component */
 export interface StyledRoutedLinkProps extends LinkProps {
   to: string;
@@ -163,7 +189,9 @@ export type ToggleButtonProps = {
 
 /** Props for Card component  */
 export type CardProps = {
-  zaaktype: ZaaktypeT;
+  title?: string;
+  description?: string;
+  detailUrl?: string;
   loading?: boolean;
 };
 
@@ -225,6 +253,7 @@ export type ColumnTypes = keyof GridColIndex;
 
 /**  Create single column definition function  */
 export type CreateSingleGridColDefFunction = (
+  loading: boolean,
   columnLabel: string,
   columnType: any
 ) => GridColDef | undefined;

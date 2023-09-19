@@ -18,9 +18,9 @@ export const spacings = {
 };
 
 /**
- * Define styling for Search field
+ * Define styling for outlined input field
  */
-export const searchStyling = {
+export const outlinedInputStyling = {
   '&:hover:not(&.Mui-focused) .MuiOutlinedInput-notchedOutline': {
     borderColor: 'rgba(0, 0, 0, 0.12)',
     backgroundColor: 'rgba(0, 0, 0, .04)',

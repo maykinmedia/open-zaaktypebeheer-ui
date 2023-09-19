@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { AuthProvider, RequireAuth, RequireNoAuth } from './components/Auth/Auth';
 import BaseView from './views/BaseView';
 import LoginView from './views/LoginView';
-import DashboardView from './views/DashboardView';
+import DashboardView from './views/DashboardView/DashboardView';
 import ZaaktypeEditView from './views/ZaaktypeEditView';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from './utils/theme';

@@ -1,7 +1,7 @@
 import { IconButton, OutlinedInput, InputLabel, InputAdornment, FormControl } from '@mui/material/';
 import SearchIcon from '@mui/icons-material/Search';
 import { SearchProps } from '../../types/types';
-import { searchStyling } from '../DesignSystem/DesignSystem';
+import { outlinedInputStyling } from '../DesignSystem/DesignSystem';
 
 export default function Search({ query, setQuery, label, fullWidth }: SearchProps) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,7 +15,7 @@ export default function Search({ query, setQuery, label, fullWidth }: SearchProp
       <OutlinedInput
         value={query}
         onChange={handleChange}
-        sx={searchStyling}
+        sx={outlinedInputStyling}
         id="search"
         name="search"
         type="text"
