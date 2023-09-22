@@ -12,12 +12,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ARG UI_VERSION=latest
 
-COPY package-lock.json package.json ./
 COPY .env.production.template ./.env.production
-COPY ./scripts/replace-envvars.sh ./replace-envvars.sh
+COPY package-lock.json package.json ./
 
 # TODO: Fix once issue 24 is fixed
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 COPY . ./
 
@@ -29,9 +28,9 @@ FROM nginxinc/nginx-unprivileged:${NGINX_VERSION}
 WORKDIR /ui
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/ .
+COPY ./scripts/replace-envvars.sh /docker-entrypoint.d/replace-envvars.sh
 COPY --from=build /app/.env.production .
-COPY --from=build /app/replace-envvars.sh /docker-entrypoint.d/replace-envvars.sh
+COPY --from=build /app/dist/ .
 
 USER root
 RUN chown 101:101 -R ./
