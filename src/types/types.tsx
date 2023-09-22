@@ -3,7 +3,6 @@
  * They might need to be updated following the zaaktypebeheer-api.
  */
 import {
-  DataGridProps as MuiDataGridProps,
   GridColDef,
   GridRowId,
   GridColumnVisibilityModel,
@@ -193,23 +192,6 @@ export type CardProps = {
   description?: string;
   detailUrl?: string;
   loading?: boolean;
-};
-
-/**- BulkEditor -**/
-/** Props for BulkEditor component */
-export interface BulkEditorProps {
-  loading: boolean;
-  zaaktype: ZaaktypeResolvedT;
-  informatieobjecttypen: InformatieObjectT[];
-  apiRef?: any;
-}
-
-/**- DataGrid -**/
-/** Props for DataGrid component  */
-export type DataGridProps = MuiDataGridProps & {
-  height?: number;
-  loading?: boolean;
-  showQuickFilter?: boolean;
 };
 
 export interface GridActionHandlers {
